@@ -1,13 +1,12 @@
 /**
- * Material/Labs para SRSC 
+ * Material/Labs para SRSC 20/21, Sem-1
+ * hj
  **/
 
 /**
  * Auxiliar
  * Some conversion functions
  */
-
- 
 public class Utils
 {
     private static String	digits = "0123456789abcdef";
