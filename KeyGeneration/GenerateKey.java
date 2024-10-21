@@ -48,6 +48,7 @@ public class GenerateKey {
     // ... Good idea ? Better idea to store/manage the key more securely?
 
     OutputStream os = new FileOutputStream(KEYRING);
+
     try {
       os.write(key.getEncoded());
       System.out.println("----------------------------------------------");
@@ -59,8 +60,6 @@ public class GenerateKey {
       try {
         os.close();
       } catch (Exception e) {
-
-        // ... Nothing by now ... Your exception handler if/when required
 
       } 
     } 

@@ -17,24 +17,31 @@ public class UDPSender {
             InetAddress receiverAddress = InetAddress.getByName(args[0]);
             int port = Integer.parseInt(args[1]);
 
+
             // Create a UDP socket
             socket = new DatagramSocket();
 
-            // Create a scanner to read input from the user
+
+            //get message from user
             Scanner scanner = new Scanner(System.in);
             System.out.println("Enter the message to send: ");
             String message = scanner.nextLine();
+            //---------------------------------------
 
-            // Convert the message to a byte array
+
+
+            //Encrypt the message
+
+
+
+            //-------------------
+
+            //message to a byte array
             byte[] buffer = message.getBytes();
 
-            // Create a packet to send to the receiver
+            //create datagram and send
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, receiverAddress, port);
-
-            // Send the packet
             socket.send(packet);
-
-            // Show the message that was sent
             System.out.println("Message sent: " + message);
 
         } catch (Exception e) {
