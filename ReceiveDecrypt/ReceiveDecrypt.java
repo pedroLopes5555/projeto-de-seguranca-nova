@@ -1,7 +1,8 @@
 
 import java.io.*;
 import java.net.*;
-import java.security.spec.KeySpec;
+import java.security.MessageDigest;
+import java.util.Arrays;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 
@@ -17,19 +18,20 @@ public class ReceiveDecrypt {
     String ciphersuite="AES/CTR/NoPadding";
 
     if (args.length==1) {
-	port=Integer.parseInt(args[0]);
+	    port=Integer.parseInt(args[0]);
     }
 
     if (args.length==2) {
-	port=Integer.parseInt(args[0]);
-        ciphersuite=args[1];
+      port=Integer.parseInt(args[0]);
+      ciphersuite=args[1];
     }
 
 
     byte[] ivBytes= new byte[] {
-	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-	0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
-    };
+      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+      0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
+        };
+
     IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
     System.out.println("\nWait cyphertext o port: " +port);
@@ -37,7 +39,7 @@ public class ReceiveDecrypt {
     System.out.println();
 
     SecretKey key = KeyRing.readSecretKey(); 
-    byte[] ciphertext = null;
+    byte[] UDPPayload = null;
 
 
     for(;;)
@@ -50,12 +52,12 @@ public class ReceiveDecrypt {
       Socket s = ss.accept();
       try {
         DataInputStream is = new DataInputStream(s.getInputStream());
-        ciphertext = new byte[is.readInt()];
-        is.read(ciphertext);
+        UDPPayload = new byte[is.readInt()];
+        is.read(UDPPayload);
 
         System.out.println("----------------------------------------------");          System.out.println("Ciphertext recebido (em HEX) ...:\n"
-             +Utils.toHex(ciphertext, ciphertext.length)
-             + " Size: " +ciphertext.length);
+             +Utils.toHex(UDPPayload, UDPPayload.length)
+             + " Size: " +UDPPayload.length);
 
       } 
       finally {
@@ -63,7 +65,6 @@ public class ReceiveDecrypt {
           s.close();
         } catch (Exception e) {
 
-          // Nothing by now ... Exception handler if you want
         } 
       } 
     } 
@@ -72,8 +73,6 @@ public class ReceiveDecrypt {
       try {
         ss.close();
       } catch (Exception e) {
-
-        // Nothing by now ... Exception Handler if you want
       } 
     }
 
@@ -83,18 +82,39 @@ public class ReceiveDecrypt {
 
     Cipher cipher = Cipher.getInstance(ciphersuite);
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
-  
+    MessageDigest hash = MessageDigest.getInstance("SHA1");
+
+
+    //cyphertext size is the payload size - hash size
+    
+    //create a ashe just to get the size
+		byte[] digest = hash.digest();
+
+    int cyphertextSize = UDPPayload.length - digest.length;
+    
+    //decompose the udpPayload
+    byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
+    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + digest.length);
+
+    
+    
+
+    //decypher plaintext
     byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
     int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
-    
     ptLength += cipher.doFinal(plainText, ptLength);
     System.out.println("Plaintext in HEX: "+ Utils.toHex(plainText, ptLength) +
 		       " Size: " +ptLength );
-
     String msgoriginal= new String(plainText);
-
     System.out.println("----------------------------------------------");      
     System.out.println("MSG Original Plaintext: "+ msgoriginal );
+  
+
+    //integrity test by hashing the cyphertext
+    hash.update(ciphertext);
+		digest = hash.digest();
+    System.out.println("hash comparaction" + Arrays.equals(digest, receivedHash));
+
     System.out.println("----------------------------------------------");      
     }
   } 

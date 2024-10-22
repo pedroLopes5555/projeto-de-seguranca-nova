@@ -12,20 +12,7 @@ import java.security.spec.KeySpec;
 
 public class GenerateKey {
 
-/*****************************************************************
- Initializations
- Use proper parameterizarions
-  note) Different symmetric algorithms use different keysizes ... 
- ****************************************************************/
 
-  // public static final String ALGORITHM = "DESede";
-  // public static final Integer KEYSIZE = 168;    // 64, 112 , 168  bits
-
-  // public static final String ALGORITHM = "Blowfish";
-  // public static final Integer KEYSIZE = 448;    // 64, 128, 256, 448 bits
-  
-  // You can select the right parameters for the key generation ...
-  // according to the symmetric algorithm you want   
 
   public static final String ALGORITHM = "AES";
   public static final Integer KEYSIZE = 256;     // 128, 256 bits
