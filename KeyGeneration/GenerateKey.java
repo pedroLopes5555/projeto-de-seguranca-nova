@@ -6,9 +6,8 @@
 // GenerateKey.java
 
 import java.io.*;
+import java.util.HexFormat;
 import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.spec.KeySpec;
 
 public class GenerateKey {
 
@@ -18,6 +17,10 @@ public class GenerateKey {
   public static final Integer KEYSIZE = 256;     // 128, 256 bits
   public static final String KEYRING = "keyring";
     
+  public static String bytesToHex(byte[] bytes) {
+    // Using Java 17's HexFormat for conversion to Hex string
+    return HexFormat.of().formatHex(bytes);
+  }
 
   /**
    * main()
@@ -31,6 +34,12 @@ public class GenerateKey {
     kg.init(KEYSIZE);
     SecretKey key = kg.generateKey();
 
+    byte[] keyBytes = key.getEncoded();
+
+    String hexKey = bytesToHex(keyBytes);
+
+    
+
     // We will store in a file (as a keyring, as a keystore file)
     // ... Good idea ? Better idea to store/manage the key more securely?
 
@@ -39,8 +48,10 @@ public class GenerateKey {
       os.write(key.getEncoded());
       System.out.println("----------------------------------------------");
       System.out.println("Key " +ALGORITHM +" with "+KEYSIZE +" bits ");
+      System.out.println("Key in hexadecimal: \n" + hexKey +"\n");
       System.out.println("Key stored in the file  " + KEYRING + "...");
       System.out.println("----------------------------------------------");
+
     } 
     finally {
       try {

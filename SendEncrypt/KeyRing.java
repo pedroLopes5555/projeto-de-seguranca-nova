@@ -7,56 +7,42 @@
 // A class to manage the keyring where the symmetric key is stored
 
 
-import java.io.*;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.spec.KeySpec;
 
 
 public class KeyRing {
-    /** Initializations
-     *  According to the Crypto we will use
-    **/
 
-    // public static final String ALGORITHM = "DESede"; // This is for Triple DES Alg.
-    // public static final String ALGORITHM = "Blowfish"; // This is for Blowfish Alg. 
-    // etc ... You can use different algorithms ...
 
-    public static final String ALGORITHM = "AES"; // We will use AES
-    public static final String KEYRING = "keyring"; // A file to store Key Objects
 
-   // Later on we will use keystores or keyrings to store/manage keys
-   
-   
-  /**
-   * Get key from keyring
-   * @return :  secret key (generated for the Alg we want to use
-   * @throws Exception if something is wrong
-   */
-  public static SecretKey readSecretKey() throws Exception {
+  public static final String ALGORITHM = "AES"; 
+  public static final String KEYRING = "keyring"; 
 
-    // Read the key
-    // System.out.println("reading the key from the keyring ...");
-    File f=new File(KEYRING);
-    long fl= f.length();
-    byte[] keyBuffer = new byte[(int)fl];
 
-    InputStream is = new FileInputStream(KEYRING);
-    try {
-      is.read(keyBuffer);
-    } 
-    finally {
-      try {
-        is.close();
-      } catch (Exception e) {
+  public static SecretKey hexStringToSecretKey(String hexKey, String algorithm) {
+    byte[] keyBytes = hexStringToByteArray(hexKey);
+    return new SecretKeySpec(keyBytes, algorithm);
+  }
+  
+  //Convert a Hex String to a byte array (chat gpt method)
+  public static byte[] hexStringToByteArray(String s) {
+    int len = s.length();
+    byte[] data = new byte[len / 2];
 
-        // Nothing by now ... Exception handler if you want
-      } 
-    } 
-    // The key is repersenet din its "internal" formar as a Java Object
-    // Type:  SecretKey 
 
-    return new SecretKeySpec(keyBuffer, ALGORITHM);
+    for (int i = 0; i < len; i += 2) {
+      data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+    }
+
+    return data;
+  }
+
+
+
+
+  public static SecretKey readSecretKey(String keyInString, String algorithm) throws Exception {
+
+    return hexStringToSecretKey(keyInString, algorithm);
   } 
 }
 

@@ -1,15 +1,15 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigReader {
 
     public static void main(String[] args) {
         String configFilePath = "cryptoconfig.txt";  // Path to the configuration file
         Map<String, String> configMap = new HashMap<>();
-        
+;
+
         // Read the configuration file
         try (BufferedReader br = new BufferedReader(new FileReader(configFilePath))) {
             String line;
