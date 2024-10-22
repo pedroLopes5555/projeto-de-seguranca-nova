@@ -113,7 +113,7 @@ public class ReceiveDecrypt {
     //integrity test by hashing the cyphertext
     hash.update(ciphertext);
 		digest = hash.digest();
-    System.out.println("hash comparaction" + Arrays.equals(digest, receivedHash));
+    System.out.println("hash comparaction : " + Arrays.equals(digest, receivedHash));
 
     System.out.println("----------------------------------------------");      
     }
