@@ -1,12 +1,3 @@
-/**
- * Material/Labs para SRSC 21/22, Sem-1
- * hj
- **/
-
-// KeyRing.java
-// A class to manage the keyring where the symmetric key is stored
-
-
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 

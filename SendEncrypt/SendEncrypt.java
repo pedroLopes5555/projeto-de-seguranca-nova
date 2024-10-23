@@ -1,15 +1,9 @@
 import java.io.*;
 import java.net.Socket;
-
-import javax.crypto.spec.IvParameterSpec;
-import java.security.Key;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 public class SendEncrypt {
 
 
@@ -55,12 +49,9 @@ public class SendEncrypt {
 	System.out.println("Algorithm: " + red + config.get("CONFIDENTIALITY").substring(0,3) + reset);
 
 	SecretKey key = KeyRing.readSecretKey(config.get("SYMMETRIC_KEY") , config.get("CONFIDENTIALITY").substring(0,3));
-	//System.out.println(red + "CHEGOU AQUI" + reset);
-	
 
 	//--------------------------------------------------------
-
-	//-----------------------------------------------------------
+	//--------------------------------------------------------
 
 
 	boolean debug = true;
@@ -87,7 +78,7 @@ public class SendEncrypt {
 	
 			//HASHING
 			//EXAMPLE WHIT SHA1:
-			MessageDigest hash = MessageDigest.getInstance("SHA1");
+			MessageDigest hash = MessageDigest.getInstance(config.get("H"));
 			hash.update(ciphertext);
 			byte[] digest = hash.digest();
 			System.out.println("hash size = " + digest.length);
@@ -106,7 +97,7 @@ public class SendEncrypt {
 				byte[] combined = new byte[ciphertext.length + digest.length];
 				System.arraycopy(ciphertext, 0, combined, 0, ciphertext.length);
 				System.arraycopy(digest, 0, combined, ciphertext.length, digest.length);
-	
+
 				os.writeInt(combined.length);
 				os.write(combined);
 				os.close();

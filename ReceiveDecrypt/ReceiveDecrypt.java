@@ -15,16 +15,19 @@ public class ReceiveDecrypt {
 
     Integer  port=5999; 
 
-    String ciphersuite="AES/CTR/NoPadding";
+    // ANSI escape code for red text
+    String red = "\u001B[31m";
+    // ANSI escape code to reset to default
+    String reset = "\u001B[0m";
 
-    if (args.length==1) {
-	    port=Integer.parseInt(args[0]);
-    }
 
-    if (args.length==2) {
-      port=Integer.parseInt(args[0]);
-      ciphersuite=args[1];
-    }
+    // Load data
+    IConfigReader configReader = new ConfigReader();
+    var config = configReader.getConfig();
+    //var keys = configReader.getkeys();  
+
+
+    String ciphersuite = config.get("CONFIDENTIALITY");  // Retrieve the ciphersuite
 
 
     byte[] ivBytes= new byte[] {
@@ -38,7 +41,7 @@ public class ReceiveDecrypt {
     System.out.println("Ciphersuite:" +ciphersuite );
     System.out.println();
 
-    SecretKey key = KeyRing.readSecretKey(); 
+    SecretKey key = KeyRing.readSecretKey(config.get("SYMMETRIC_KEY") , config.get("CONFIDENTIALITY").substring(0,3));
     byte[] UDPPayload = null;
 
 
@@ -82,7 +85,7 @@ public class ReceiveDecrypt {
 
     Cipher cipher = Cipher.getInstance(ciphersuite);
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
-    MessageDigest hash = MessageDigest.getInstance("SHA1");
+    MessageDigest hash = MessageDigest.getInstance(config.get("H"));
 
 
     //cyphertext size is the payload size - hash size
