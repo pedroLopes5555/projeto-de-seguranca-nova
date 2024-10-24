@@ -34,9 +34,10 @@ public class SendEncrypt {
 	System.out.println(ciphersuite);
 
 	byte[] ivBytes= new byte[] {
-	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-	0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15 
-		};
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15 
+	};
+
 	IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
 	System.out.println("\nDestino:" +desthost + " Porto:" +destport);
@@ -45,9 +46,6 @@ public class SendEncrypt {
 
 	String plaintext="INIT";
 
-	System.out.println("Simetric key:" + red + config.get("SYMMETRIC_KEY") + reset);
-	System.out.println("Algorithm: " + red + config.get("CONFIDENTIALITY").substring(0,3) + reset);
-
 	SecretKey key = KeyRing.readSecretKey(config.get("SYMMETRIC_KEY") , config.get("CONFIDENTIALITY").substring(0,3));
 
 	//--------------------------------------------------------
@@ -55,6 +53,7 @@ public class SendEncrypt {
 
 
 	boolean debug = true;
+
 	if(debug){
 		for(;;)
 		{
@@ -66,6 +65,8 @@ public class SendEncrypt {
 			System.out.println("--------------------------------------------");
 			System.out.println("Plaintext em HEX: " + Utils.toHex(ptextbytes, ptextbytes.length));
 	
+
+			
 			Cipher cipher = Cipher.getInstance(ciphersuite);
 			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
 			byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
@@ -77,16 +78,31 @@ public class SendEncrypt {
 	
 	
 			//HASHING
-			//EXAMPLE WHIT SHA1:
+			System.out.println(red + config.get("INTEGRITY").equals("HMAC") + reset);
+			System.out.println(red + config.get("INTEGRITY") + reset);
+
+			String integrity = config.get("INTEGRITY");
+
+			System.out.println(integrity);
+			
+			if(integrity.equals("HMAC")){
+				//use HMAC
+			}else if(integrity.equals("H")){
+				//Use hash
+			}else{
+				System.out.println(red + "Not Valid Integrity Field ->  INTEGRITY:" + integrity + reset);
+				System.exit(0);
+			}
+			
+			
 			MessageDigest hash = MessageDigest.getInstance(config.get("H"));
 			hash.update(ciphertext);
 			byte[] digest = hash.digest();
 			System.out.println("hash size = " + digest.length);
-			//now we need to send the hash on the datagram
 			//-----------------------------------------------------------
 	
 	
-			// Enviar cyphertext por um socket !
+			// Enviar cyphertext por um socket
 			Socket s = new Socket(desthost, destport);
 	
 			try {

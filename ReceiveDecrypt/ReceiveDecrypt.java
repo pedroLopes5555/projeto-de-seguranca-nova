@@ -100,6 +100,18 @@ public class ReceiveDecrypt {
     byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + digest.length);
 
     
+    //integrity test by hashing the cyphertext
+
+
+    Boolean isMessageValid = Arrays.equals(digest, receivedHash);
+
+    hash.update(ciphertext);
+    digest = hash.digest();  
+
+
+    if(!isMessageValid){
+      System.out.println(red + "Packet Integrity not conformed!" + reset);
+    }
     
 
     //decypher plaintext
@@ -113,12 +125,7 @@ public class ReceiveDecrypt {
     System.out.println("MSG Original Plaintext: "+ msgoriginal );
   
 
-    //integrity test by hashing the cyphertext
-    hash.update(ciphertext);
-		digest = hash.digest();
-    System.out.println("hash comparaction : " + Arrays.equals(digest, receivedHash));
-
-    System.out.println("----------------------------------------------");      
+   
     }
   } 
 }
