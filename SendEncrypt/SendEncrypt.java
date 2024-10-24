@@ -9,20 +9,15 @@ public class SendEncrypt {
 
   public static void main(String args[]) throws Exception {
 
-	// ANSI escape code for red text
-	String red = "\u001B[31m";
-	// ANSI escape code to reset to default
-	String reset = "\u001B[0m";
-
-	if (args.length != 2) {
-	System.out.println("Usar: SenEncrypt <hostname> <port>");
-		System.exit(-1);
-	}
+	// if (args.length != 2) {
+	// System.out.println("Usar: SenEncrypt <hostname> <port>");
+	// 	System.exit(-1);
+	// }
 
 	
 	//get arguments
-	String desthost= args[0]; // Default;
-	Integer destport=Integer.parseInt(args[1]); // Default;
+	String desthost= "localhost"; // Default;
+	Integer destport = 5999; // Default;
 
 	// Load data
 	IConfigReader configReader = new ConfigReader();
@@ -54,86 +49,113 @@ public class SendEncrypt {
 
 	boolean debug = true;
 
-	if(debug){
-		for(;;)
-		{
-	
-			plaintext = prompt("Mensagem Plaintext: ");
-			if (plaintext.equals("exit!")) break;
-			byte[] ptextbytes= plaintext.getBytes();
-	
-			System.out.println("--------------------------------------------");
-			System.out.println("Plaintext em HEX: " + Utils.toHex(ptextbytes, ptextbytes.length));
-	
+	for(;;)
+	{
 
-			
-			Cipher cipher = Cipher.getInstance(ciphersuite);
-			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
-			byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
-	
-			System.out.println("Mensagem cifrada a enviar (em HEX)...:");
-			System.out.println(Utils.toHex(ciphertext, ciphertext.length) + " Size: " +ciphertext.length);
-			System.out.println("----------------------------------------------");
-	
-	
-	
-			//HASHING
-			System.out.println(red + config.get("INTEGRITY").equals("HMAC") + reset);
-			System.out.println(red + config.get("INTEGRITY") + reset);
+		plaintext = prompt("Mensagem Plaintext: ");
+		if (plaintext.equals("exit!")) break;
+		byte[] ptextbytes= plaintext.getBytes();
+		System.out.println("--------------------------------------------");
 
-			String integrity = config.get("INTEGRITY");
+		
+		Cipher cipher = Cipher.getInstance(ciphersuite);
+		cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+		byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
 
-			System.out.println(integrity);
-			
-			if(integrity.equals("HMAC")){
-				//use HMAC
-			}else if(integrity.equals("H")){
-				//Use hash
-			}else{
-				System.out.println(red + "Not Valid Integrity Field ->  INTEGRITY:" + integrity + reset);
-				System.exit(0);
-			}
-			
-			
-			MessageDigest hash = MessageDigest.getInstance(config.get("H"));
+
+		
+		String integrity = config.get("INTEGRITY");
+		System.out.println(integrity);
+
+
+
+		//variables
+		MessageDigest hash;
+		byte[] digest;
+		
+		if(integrity.equals("H")){
+			//use H
+
+			hash = MessageDigest.getInstance(config.get("H"));
+
 			hash.update(ciphertext);
-			byte[] digest = hash.digest();
-			System.out.println("hash size = " + digest.length);
-			//-----------------------------------------------------------
-	
-	
-			// Enviar cyphertext por um socket
+			digest = hash.digest();
+
+			int digestLen = digest.length;
+			Utils.printInRed("tamanho da ashe enviada:" + digest.length);
+			Utils.printInRed("tamanho da ciphertext enviada:" + ciphertext.length);
+			
+
+
+
+			var payload = createUDPPayload(ciphertext, digest);
+
 			Socket s = new Socket(desthost, destport);
+			sendUDPPayload(payload, s);
 	
-			try {
-				DataOutputStream os = new DataOutputStream(s.getOutputStream());
-	
-	
-				//combine in the same payload the cypher test and the hash
+		}else if(integrity.equals("HMAC")){
+			//Use hash
+		}else{
+			Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
+			System.exit(0);
+			}
+		}
+		System.exit(0);
+	}
+
+
+
+
+
+	public static byte[] createUDPPayload(byte[] ciphertext, byte[] digest) {
+        //combine in the same payload the cypher test and the hash
 				byte[] combined = new byte[ciphertext.length + digest.length];
 				System.arraycopy(ciphertext, 0, combined, 0, ciphertext.length);
 				System.arraycopy(digest, 0, combined, ciphertext.length, digest.length);
 
-				os.writeInt(combined.length);
-				os.write(combined);
-				os.close();
-			} 
-			finally {
-					try {
-						s.close();
-					} catch (Exception e) {
+
+        return combined;
+    }
+
+
+
+
+
+	private static void sendUDPPayload(byte[] UDPPayload, Socket s) {
+
+
+        DataOutputStream os = null;
+        try {	
+            os = new DataOutputStream(s.getOutputStream());
+            os.writeInt(UDPPayload.length);
+            os.write(UDPPayload);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // Clean up and close the socket and output stream (sim paulinho, esta parte é o nosso amigo ppt)
+            try {
+                if (os != null) {
+                    os.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (s != null) {
+                    s.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 	
-					}
-				}
-			}
-			System.exit(0);
-		}
-	}
-	
 
 
 
-	public static String prompt(String prompt) throws IOException {
+
+
+	private static String prompt(String prompt) throws IOException {
 	System.out.print(prompt);
 	System.out.flush();
 	BufferedReader input = 
