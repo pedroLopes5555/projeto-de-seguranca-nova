@@ -49,7 +49,6 @@ public class ReceiveDecrypt {
     {
     ServerSocket ss = new ServerSocket(port);
 
-    // Receive on my TCP socket
 
     try {
       Socket s = ss.accept();
@@ -57,11 +56,8 @@ public class ReceiveDecrypt {
         DataInputStream is = new DataInputStream(s.getInputStream());
         UDPPayload = new byte[is.readInt()];
         is.read(UDPPayload);
-
-        System.out.println("----------------------------------------------");          System.out.println("Ciphertext recebido (em HEX) ...:\n"
-             +Utils.toHex(UDPPayload, UDPPayload.length)
-             + " Size: " +UDPPayload.length);
-
+        System.out.println("----------------------------------------------");
+            
       } 
       finally {
         try {
@@ -79,46 +75,47 @@ public class ReceiveDecrypt {
       } 
     }
 
-    // Decryption
-
-    System.out.println("Decrypt received ciphertext ...");
 
     Cipher cipher = Cipher.getInstance(ciphersuite);
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+
+
+
     MessageDigest hash = MessageDigest.getInstance(config.get("H"));
 
-
-    //cyphertext size is the payload size - hash size
-    
-    //create a ashe just to get the size
-		byte[] digest = hash.digest();
-
-    int cyphertextSize = UDPPayload.length - digest.length;
-    
-    //decompose the udpPayload
+    int cyphertextSize = UDPPayload.length - hash.getDigestLength(); 
     byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
-    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + digest.length);
+    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + hash.getDigestLength());
 
-    
+
+    hash.update(ciphertext);
+    byte[] computedHash = hash.digest();
+
+    Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
+
+        
+
+
+
+
+
+    if(!isMessageValid){
+      System.out.println(red + "Packet Integrity not conformed!" + reset);
+    }else{
+      Utils.printInRed(isMessageValid.toString());
+    }
     
 
     //decypher plaintext
     byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
     int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
     ptLength += cipher.doFinal(plainText, ptLength);
-    System.out.println("Plaintext in HEX: "+ Utils.toHex(plainText, ptLength) +
-		       " Size: " +ptLength );
     String msgoriginal= new String(plainText);
     System.out.println("----------------------------------------------");      
     System.out.println("MSG Original Plaintext: "+ msgoriginal );
   
 
-    //integrity test by hashing the cyphertext
-    hash.update(ciphertext);
-		digest = hash.digest();
-    System.out.println("hash comparaction : " + Arrays.equals(digest, receivedHash));
-
-    System.out.println("----------------------------------------------");      
+   
     }
   } 
 }

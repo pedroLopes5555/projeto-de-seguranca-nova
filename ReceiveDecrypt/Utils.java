@@ -44,6 +44,16 @@ public class Utils
     {
         return toHex(data, data.length);
     }
+
+
+    public static void printInRed(String message){
+        // ANSI escape code for red text
+        String red = "\u001B[31m";
+        // ANSI escape code to reset to default
+        String reset = "\u001B[0m";
+        System.out.println(red + message + reset);
+    }
+
 }
 
 
