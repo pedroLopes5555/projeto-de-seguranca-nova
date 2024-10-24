@@ -29,6 +29,16 @@ public class SendEncrypt {
 	var config = configReader.getConfig();
 	//var keys = configReader.getkeys();
 
+	// --------------------------------------------- Check data
+	ICheckCFG checkCFG = new CheckCFG();
+	boolean validConfig = checkCFG.validateConfig(config);
+
+	if(!validConfig){
+		System.out.println("CFG file invalid");
+		System.exit(0);
+	}
+	// --------------------------------------------- Check data
+
 	String ciphersuite = config.get("CONFIDENTIALITY");  // Retrieve the ciphersuite
 	
 	System.out.println(ciphersuite);
