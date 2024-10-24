@@ -24,7 +24,7 @@ public class SendEncrypt {
 	var config = configReader.getConfig();
 	//var keys = configReader.getkeys();
 
-	// --------------------------------------------- Check data
+	// --------------------------------------------- Check data teste
 	ICheckCFG checkCFG = new CheckCFG();
 	boolean validConfig = checkCFG.validateConfig(config);
 
