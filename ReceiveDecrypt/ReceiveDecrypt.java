@@ -78,30 +78,31 @@ public class ReceiveDecrypt {
 
     Cipher cipher = Cipher.getInstance(ciphersuite);
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+
+
+
     MessageDigest hash = MessageDigest.getInstance(config.get("H"));
 
-		byte[] digest = hash.digest();
-
-
-    int cyphertextSize = UDPPayload.length - digest.length;
-    
-    //decompose the udpPayload
+    int cyphertextSize = UDPPayload.length - hash.getDigestLength(); 
     byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
-    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + digest.length);
+    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + hash.getDigestLength());
 
-
-    Utils.printInRed("Tamanho da hashe retirada:" + receivedHash.length);
-    Utils.printInRed("tamanho da ciphertex recebida:" + ciphertext.length);
-
-
-    Boolean isMessageValid = Arrays.equals(digest, receivedHash);
 
     hash.update(ciphertext);
-    digest = hash.digest();  
+    byte[] computedHash = hash.digest();
+
+    Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
+
+        
+
+
+
 
 
     if(!isMessageValid){
       System.out.println(red + "Packet Integrity not conformed!" + reset);
+    }else{
+      Utils.printInRed(isMessageValid.toString());
     }
     
 
