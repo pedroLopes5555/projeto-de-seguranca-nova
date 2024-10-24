@@ -42,7 +42,7 @@ public class ReceiveDecrypt {
     System.out.println();
 
     SecretKey key = KeyRing.readSecretKey(config.get("SYMMETRIC_KEY") , config.get("CONFIDENTIALITY").substring(0,3));
-    byte[] UDPPayload = null;
+    byte[] UDPDatagram = null;
 
 
     for(;;)
@@ -54,8 +54,8 @@ public class ReceiveDecrypt {
       Socket s = ss.accept();
       try {
         DataInputStream is = new DataInputStream(s.getInputStream());
-        UDPPayload = new byte[is.readInt()];
-        is.read(UDPPayload);
+        UDPDatagram = new byte[is.readInt()];
+        is.read(UDPDatagram);
         System.out.println("----------------------------------------------");
             
       } 
@@ -80,30 +80,34 @@ public class ReceiveDecrypt {
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
 
 
+    
+		// Version -> 16 bits
+    byte[] version = new byte[] { 0x00, 0x01 };
+    // Release -> 8 bits
+    byte[] release = new byte[] { 0x01 };
+    // Payload length -> 16 bits
+    byte[] payloadLen = new byte[] { 0x00, 0x01 };
+    int headerLen = version.length + release.length + payloadLen.length;
 
+    // Divide Datagram
     MessageDigest hash = MessageDigest.getInstance(config.get("H"));
+    byte[] UDPPayload = Arrays.copyOfRange(UDPDatagram, headerLen, UDPDatagram.length);
 
+    //calculate size of ciphertext
     int cyphertextSize = UDPPayload.length - hash.getDigestLength(); 
+    //extract ciphertext from UDPPayload (starts at index 0, after the header)
     byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
-    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, cyphertextSize + hash.getDigestLength());
+    //extract received hash (starts immediately after the ciphertext)
+    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
 
-
+    //check integrity
     hash.update(ciphertext);
     byte[] computedHash = hash.digest();
-
     Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
 
-        
+    //print or handle message validity
+    System.out.println("Message valid: " + isMessageValid);
 
-
-
-
-
-    if(!isMessageValid){
-      System.out.println(red + "Packet Integrity not conformed!" + reset);
-    }else{
-      Utils.printInRed(isMessageValid.toString());
-    }
     
 
     //decypher plaintext

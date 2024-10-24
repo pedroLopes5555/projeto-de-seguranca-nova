@@ -81,18 +81,20 @@ public class SendEncrypt {
 			hash.update(ciphertext);
 			digest = hash.digest();
 
-			int digestLen = digest.length;
-			Utils.printInRed("tamanho da ashe enviada:" + digest.length);
-			Utils.printInRed("tamanho da ciphertext enviada:" + ciphertext.length);
-			
 
+			var datagram = createUDPDatagram(ciphertext, digest);
 
+			//tampering atack example
+//			payload[4] ^= '1' ^ '9';
+			//----------------
 
-			var payload = createUDPPayload(ciphertext, digest);
 
 			Socket s = new Socket(desthost, destport);
-			sendUDPPayload(payload, s);
-	
+			sendUDPDatagram(datagram, s);
+
+			Utils.printInRed("tamanho do datagrama: " + datagram.length);
+
+
 		}else if(integrity.equals("HMAC")){
 			//Use hash
 		}else{
@@ -107,11 +109,27 @@ public class SendEncrypt {
 
 
 
-	public static byte[] createUDPPayload(byte[] ciphertext, byte[] digest) {
-        //combine in the same payload the cypher test and the hash
-				byte[] combined = new byte[ciphertext.length + digest.length];
-				System.arraycopy(ciphertext, 0, combined, 0, ciphertext.length);
-				System.arraycopy(digest, 0, combined, ciphertext.length, digest.length);
+	public static byte[] createUDPDatagram(byte[] ciphertext, byte[] digest) {
+
+		//Version -> 16 bits
+        byte[] version = new byte[] { 0x00, 0x01 };
+        //Release -> 8 bits
+        byte[] release = new byte[] { 0x01 };
+        //Payload length -> 16 bits
+        byte[] payloadLen = new byte[] { 0x00, 0x01 };
+    
+        int headerLen = version.length + release.length + payloadLen.length;
+
+		Utils.printInRed("tamanho do header:	" + headerLen);
+		Utils.printInRed("tamanho do payload: 	" + (ciphertext.length + digest.length));
+
+        byte[] combined = new byte[headerLen + ciphertext.length + digest.length];
+
+        System.arraycopy(version, 0, combined, 0, version.length);
+        System.arraycopy(release, 0, combined, version.length, release.length);
+        System.arraycopy(payloadLen, 0, combined, version.length + release.length, payloadLen.length);
+        System.arraycopy(ciphertext, 0, combined, headerLen, ciphertext.length);
+        System.arraycopy(digest, 0, combined, headerLen + ciphertext.length, digest.length);
 
 
         return combined;
@@ -121,8 +139,7 @@ public class SendEncrypt {
 
 
 
-	private static void sendUDPPayload(byte[] UDPPayload, Socket s) {
-
+	private static void sendUDPDatagram(byte[] UDPPayload, Socket s) {
 
         DataOutputStream os = null;
         try {	
@@ -153,8 +170,6 @@ public class SendEncrypt {
 
 
 
-
-
 	private static String prompt(String prompt) throws IOException {
 	System.out.print(prompt);
 	System.out.flush();
@@ -164,5 +179,9 @@ public class SendEncrypt {
 	System.out.println();
 	return response;
 	} 
+
+
+
+
 }
 
