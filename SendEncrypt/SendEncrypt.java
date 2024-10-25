@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -109,7 +110,14 @@ public class SendEncrypt {
 
 	String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
 	
-	System.out.println(ciphersuite);
+	// --------------------- Check if it is GCM mode
+	int index = ciphersuite.indexOf("/");
+	String ciphersuiteMode = "";
+        
+	if (index != -1) {
+		ciphersuiteMode = ciphersuite.split("/")[1];
+	}
+	// --------------------- Check if it is GCM mode
 
 	byte[] ivBytes= new byte[] {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -117,6 +125,8 @@ public class SendEncrypt {
 	};
 
 	IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+	GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
+
 
 	System.out.println("\nDestino:" +desthost + " Porto:" +destport);
 	System.out.println("Ciphersuite a usar: " 
@@ -143,14 +153,15 @@ public class SendEncrypt {
 
 		
 		Cipher cipher = Cipher.getInstance(ciphersuite);
-		cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+		if(ciphersuiteMode.toUpperCase().equals("GCM")){
+			cipher.init(Cipher.ENCRYPT_MODE, key, gcmParameterSpec);
+		}else{
+			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+		}
 		byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
 
-
-		
 		String integrity = config.get(ConfigKey.INTEGRITY.getValue());
 		System.out.println(integrity);
-
 
 
 		//variables
