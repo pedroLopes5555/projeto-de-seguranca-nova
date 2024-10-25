@@ -2,11 +2,15 @@ import java.io.*;
 import java.net.Socket;
 import java.security.MessageDigest;
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+
+
+
 public class SendEncrypt {
-
-
 
 
 
@@ -14,28 +18,28 @@ public class SendEncrypt {
 	private static byte[] createUDPDatagram(byte[] ciphertext, byte[] digest) {
 
 		//Version -> 16 bits
-        byte[] version = new byte[] { 0x00, 0x01 };
-        //Release -> 8 bits
-        byte[] release = new byte[] { 0x01 };
-        //Payload length -> 16 bits
-        byte[] payloadLen = new byte[] { 0x00, 0x01 };
-    
-        int headerLen = version.length + release.length + payloadLen.length;
+		byte[] version = new byte[] { 0x00, 0x01 };
+		//Release -> 8 bits
+		byte[] release = new byte[] { 0x01 };
+		//Payload length -> 16 bits
+		byte[] payloadLen = new byte[] { 0x00, 0x01 };
+
+		int headerLen = version.length + release.length + payloadLen.length;
 
 		Utils.printInRed("tamanho do header:	" + headerLen);
 		Utils.printInRed("tamanho do payload: 	" + (ciphertext.length + digest.length));
 
-        byte[] combined = new byte[headerLen + ciphertext.length + digest.length];
+		byte[] combined = new byte[headerLen + ciphertext.length + digest.length];
 
-        System.arraycopy(version, 0, combined, 0, version.length);
-        System.arraycopy(release, 0, combined, version.length, release.length);
-        System.arraycopy(payloadLen, 0, combined, version.length + release.length, payloadLen.length);
-        System.arraycopy(ciphertext, 0, combined, headerLen, ciphertext.length);
-        System.arraycopy(digest, 0, combined, headerLen + ciphertext.length, digest.length);
+		System.arraycopy(version, 0, combined, 0, version.length);
+		System.arraycopy(release, 0, combined, version.length, release.length);
+		System.arraycopy(payloadLen, 0, combined, version.length + release.length, payloadLen.length);
+		System.arraycopy(ciphertext, 0, combined, headerLen, ciphertext.length);
+		System.arraycopy(digest, 0, combined, headerLen + ciphertext.length, digest.length);
 
 
-        return combined;
-    }
+		return combined;
+	}
 
 
 
@@ -152,54 +156,45 @@ public class SendEncrypt {
 		//variables
 		byte[] digest;
 		byte[] datagram;
-		
-		if(integrity.equals("H")){
-			//use H
-			//create the hash algotrithm isntance
-			MessageDigest hash = MessageDigest.getInstance(config.get(ConfigKey.H.getValue()));
-			hash.update(ciphertext);
-			digest = hash.digest();
-			//digest is the cihertext hashed
 
-			datagram = createUDPDatagram(ciphertext, digest);
-			//tampering atack example
-			//			payload[4] ^= '1' ^ '9';
-			//----------------
-			Socket s = new Socket(desthost, destport);
-			sendUDPDatagram(datagram, s);
+			switch (integrity) {
+					case "H" ->		{
+									//use H
+									//create the hash algotrithm isntance
+									MessageDigest hash = MessageDigest.getInstance(config.get(ConfigKey.H.getValue()));
+									hash.update(ciphertext);
+									digest = hash.digest();
+									//digest is the cihertext hashed
+									datagram = createUDPDatagram(ciphertext, digest);
+									//tampering atack example
+									//			payload[4] ^= '1' ^ '9';
+									//----------------
+									Socket s = new Socket(desthost, destport);
+									sendUDPDatagram(datagram, s);
+									Utils.printInRed("tamanho do datagrama: " + datagram.length);
+							}
+					case "HMAC" ->	{
+									// Use HMAC-based integrity
+									Mac hMac = Mac.getInstance(config.get(ConfigKey.MAC.getValue()));
 
-			Utils.printInRed("tamanho do datagrama: " + datagram.length);
+									SecretKeySpec hMacKey = new SecretKeySpec(
+													Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue())),
+													config.get(ConfigKey.MAC.getValue())
+									);
+									//inicialize hashe
+									hMac.init(hMacKey);
+									hMac.update(ptextbytes); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
+									digest = hMac.doFinal();
 
-
-		}else if(integrity.equals("HMAC")){
-			//HMAC is a Hash-based Message Authentication Code (Hashed MAC).
-			// HMAC is calculated signature as HMAC(“Message”, secret, digest-algorithm)
-
-
-			// Key macKey = KeyRing.readSecretKey(config.get(ConfigKey.MACKEY.getValue()) , config.get(ConfigKey.MAC.getValue()));
-
-			// var hashFunction = config.get(ConfigKey.MAC.getValue());
-			// Mac hMac = Mac.getInstance(hashFunction);
-			
-
-			// cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
-			// byte[] cipherText = new byte[cipher.getOutputSize(plaintext.length() + hMac.getMacLength())];
-			// int ctLength = cipher.update(Utils.toByteArray(plaintext), 0, plaintext.length(), cipherText, 0);
-
-			// hMac.init(hMacKey);
-			// hMac.update(Utils.toByteArray(plaintext));
-			// digest = hMac.doFinal();
-
-
-			// datagram = createUDPDatagram(cipherText, digest);
-			// Socket s = new Socket(desthost, destport);
-			// sendUDPDatagram(datagram, s);
-
-			// Utils.printInRed("chegou aqui");
-
-		}else{
-			Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
-			System.exit(0);
+									//create datagram and send
+									datagram = createUDPDatagram(ciphertext, digest);
+									Socket s = new Socket(desthost, destport);
+									sendUDPDatagram(datagram, s);
+								}
+					default -> {
+							Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
+							System.exit(0);
+					}
 			}
 		}
 		System.exit(0);
