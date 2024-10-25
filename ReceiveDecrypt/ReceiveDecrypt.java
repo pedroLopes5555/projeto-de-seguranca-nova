@@ -157,8 +157,11 @@ public class ReceiveDecrypt {
             if(!isHmacValid){
               System.out.println("Integrity Test Failed");
               System.exit(0);
-            }               
-              }
+            }    
+            
+            System.out.println("Mensagem : " + new String(plainText, 0, ptLength));
+
+          }
           default -> {
               Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
               System.exit(0);
