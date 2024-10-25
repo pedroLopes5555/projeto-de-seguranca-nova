@@ -101,17 +101,22 @@ public class DecriptDatagram {
               }
               
               //recalculate original message
-              byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
+              byte[] plainTextAndSequenceNumber= new byte[cipher.getOutputSize(ciphertext.length)];
 
-              int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
-              ptLength += cipher.doFinal(plainText, ptLength);
+              int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainTextAndSequenceNumber,0);
+              ptLength += cipher.doFinal(plainTextAndSequenceNumber, ptLength);
+
+              byte[] sequenceNumber = Arrays.copyOfRange(plainTextAndSequenceNumber, 0, 2);
+              byte[] plainText = Arrays.copyOfRange(plainTextAndSequenceNumber, 2, plainTextAndSequenceNumber.length);
+              
+              System.out.println("tamanho do sequence number: " + sequenceNumber.length);
+              System.out.println("tamanho do plaintex: " + plainText.length);
+              System.out.println("tamanho dos 2 juntos: " + plainTextAndSequenceNumber.length);
+
+              System.out.println("valor do sequence number: " + Arrays.toString(sequenceNumber));
+		          System.out.println("2juntos: " + Arrays.toString(plainTextAndSequenceNumber));
 
               return plainText;
-
-
-              // String originalMessage = new String(plainText);
-              // System.out.println("----------------------------------------------");
-              // System.out.println("MSG Original Plaintext: "+ originalMessage);
           }
           case "HMAC" -> {
 
@@ -130,16 +135,26 @@ public class DecriptDatagram {
             byte[] receivedHmac = Arrays.copyOfRange(UDPPayload, ciphertextSize, UDPPayload.length);
 
             
+            byte[] plainTextAndSequenceNumber= new byte[cipher.getOutputSize(ciphertext.length)];
+            byte[] sequenceNumber = Arrays.copyOfRange(plainTextAndSequenceNumber, 0, 2);
+            byte[] plainText = Arrays.copyOfRange(plainTextAndSequenceNumber, 2, plainTextAndSequenceNumber.length);
+            
+
+            // Decrypt the ciphertext
+            int ptLength = cipher.update(ciphertext, 0, ciphertext.length, plainTextAndSequenceNumber, 0);
+            ptLength += cipher.doFinal(plainTextAndSequenceNumber, ptLength);
 
 
-                              // Decrypt the ciphertext
-            byte[] plainText = new byte[cipher.getOutputSize(ciphertext.length)];
-            int ptLength = cipher.update(ciphertext, 0, ciphertext.length, plainText, 0);
-            ptLength += cipher.doFinal(plainText, ptLength);
+            System.out.println("tamanho do sequence number: " + sequenceNumber.length);
+            System.out.println("tamanho do plaintex: " + plainText.length);
+            System.out.println("tamanho dos 2 juntos: " + plainTextAndSequenceNumber.length);
+
+            System.out.println("valor do sequence number: " + Arrays.toString(sequenceNumber));
+            System.out.println("2juntos: " + Arrays.toString(plainTextAndSequenceNumber));
 
 
             //calc HMAC for the ciphertext
-            hMac.update(plainText);
+            hMac.update(plainTextAndSequenceNumber);
             byte[] computedHmac = hMac.doFinal();
 
             // Check integrity
@@ -147,10 +162,10 @@ public class DecriptDatagram {
 
             if(!isHmacValid){
               System.out.println("Integrity Test Failed");
-              System.exit(0);
+              //System.exit(0);
             }    
             
-            return plainText;
+            return plainTextAndSequenceNumber;
 
           }
           default -> {

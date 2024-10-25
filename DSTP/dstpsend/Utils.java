@@ -79,6 +79,43 @@ public class Utils
     }
     
 
+        // Method to convert an integer to a 16-bit byte array
+        public static byte[] intToByteArray(int value) {
+            // Create a 2-byte array for 16 bits
+            byte[] byteArray = new byte[2];
+    
+            // Extract high byte and low byte
+            byteArray[0] = (byte) ((value >> 8) & 0xFF); // High byte
+            byteArray[1] = (byte) (value & 0xFF);        // Low byte
+    
+            return byteArray;
+        }
+
+    // Function to combine two byte arrays
+    public static byte[] combineArrays(byte[] array1, byte[] array2) {
+        byte[] combined = new byte[array1.length + array2.length];
+        System.arraycopy(array1, 0, combined, 0, array1.length);
+        System.arraycopy(array2, 0, combined, array1.length, array2.length);
+        return combined;
+    }
+
+    
+    // Method to convert a 16-bit byte array to a decimal integer
+    public static int byteArrayToInt(byte[] byteArray) {
+        // Check if the input array is of size 2
+        if (byteArray.length != 2) {
+            throw new IllegalArgumentException("Input byte array must be 16 bits (2 bytes).");
+        }
+
+        // Combine bytes to form the decimal value
+        int highByte = byteArray[0] & 0xFF; // Mask to ensure it's treated as unsigned
+        int lowByte = byteArray[1] & 0xFF;  // Mask to ensure it's treated as unsigned
+
+        // Return the combined integer
+        return (highByte << 8) | lowByte;
+    }
+
+
 
 }
 

@@ -58,14 +58,30 @@ public class Utils
 
     //chat gpt function:
     public static byte[] hexStringToByteArray(String s) {
-    int len = s.length();
-    byte[] data = new byte[len / 2];
-    for (int i = 0; i < len; i += 2) {
-        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                                + Character.digit(s.charAt(i + 1), 16));
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
-    return data;
-}
+
+    // Method to convert a 16-bit byte array to a decimal integer
+    public static int byteArrayToInt(byte[] byteArray) {
+        // Check if the input array is of size 2
+        if (byteArray.length != 2) {
+            throw new IllegalArgumentException("Input byte array must be 16 bits (2 bytes).");
+        }
+
+        // Combine bytes to form the decimal value
+        int highByte = byteArray[0] & 0xFF; // Mask to ensure it's treated as unsigned
+        int lowByte = byteArray[1] & 0xFF;  // Mask to ensure it's treated as unsigned
+
+        // Return the combined integer
+        return (highByte << 8) | lowByte;
+    }
+
 
 }
 

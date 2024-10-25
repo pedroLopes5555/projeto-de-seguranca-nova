@@ -47,14 +47,20 @@ public class SendEncryptedMessage {
 
         byte[] data = message.getBytes();
 
-        byte[] encryptedDatagramData = GetEncryptedDatagram.getEncryptedDatagram(data);
+        for (int i = 0; i < 10; i++) {
+            byte[] encryptedDatagramData = GetEncryptedDatagram.getEncryptedDatagram(data, i);
 
 
-        try {
-            Socket s = new Socket(desthost, destport);
-            sendUDPDatagram(encryptedDatagramData, s);
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                Socket s = new Socket(desthost, destport);
+                sendUDPDatagram(encryptedDatagramData, s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Thread.sleep(3000);
         }
+
+        
     }
 }

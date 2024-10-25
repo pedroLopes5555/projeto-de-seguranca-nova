@@ -3,6 +3,7 @@ package DSTP.dstpsend;
 import java.io.*;
 import java.net.Socket;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -25,10 +26,6 @@ public class GetEncryptedDatagram {
 		byte[] payloadLen = new byte[] { 0x00, 0x01 };
 
 		int headerLen = version.length + release.length + payloadLen.length;
-
-		Utils.printInRed("tamanho do header:	" + headerLen);
-		Utils.printInRed("tamanho do payload: 	" + (ciphertext.length + digest.length));
-
 		byte[] combined = new byte[headerLen + ciphertext.length + digest.length];
 
 		System.arraycopy(version, 0, combined, 0, version.length);
@@ -86,11 +83,13 @@ public class GetEncryptedDatagram {
 		return response;
 	} 
 
+	
 
 
 
 
-	public static byte[] getEncryptedDatagram(byte[] ptextbytes) throws Exception {
+
+	public static byte[] getEncryptedDatagram(byte[] ptextbytes, int sequenceNumer) throws Exception {
 
 		// Load data
 		IConfigReader configReader = new ConfigReader();
@@ -126,9 +125,6 @@ public class GetEncryptedDatagram {
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 		GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
 
-		System.out.println("Ciphersuite a usar: " 
-		+ ciphersuite);
-
 		SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()), 
 				config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
 
@@ -146,13 +142,28 @@ public class GetEncryptedDatagram {
 			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
 		}
 
-
 		
-		byte[] ciphertext = cipher.doFinal(ptextbytes);
+		// Combine sequence number and plaintext
+		byte[] sequenceNumberArray = Utils.intToByteArray(sequenceNumer);
+		
+		byte[] sequenceNumberAndPtext = Utils.combineArrays(sequenceNumberArray, ptextbytes);
+
+		System.out.println("tamanmho do sequence number: " + sequenceNumberArray.length);
+		System.out.println("tamanho dop ptext: " +  ptextbytes.length);
+		System.out.println("tamanho dos 2 juntos: " + sequenceNumberAndPtext.length);
+
+		System.out.println("valor do sequence number: " + Arrays.toString(sequenceNumberArray));
+		System.out.println("ptext : " + new String(ptextbytes));
+		System.out.println("2juntos: " + Arrays.toString(sequenceNumberAndPtext));
+
+
+
+		// Encrypt the combined array
+		byte[] ciphertext = cipher.doFinal(sequenceNumberAndPtext);
+
+
 
 		String integrity = config.get(ConfigKey.INTEGRITY.getValue());
-		System.out.println(integrity);
-
 
 		//variables
 		byte[] digest;
@@ -183,7 +194,7 @@ public class GetEncryptedDatagram {
 									);
 									//inicialize hashe
 									hMac.init(hMacKey);
-									hMac.update(ptextbytes); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
+									hMac.update(sequenceNumberAndPtext); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
 									digest = hMac.doFinal();
 
 									//create datagram and send
