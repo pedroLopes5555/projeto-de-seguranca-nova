@@ -38,6 +38,8 @@ public class GenerateKey {
 
     String hexKey = bytesToHex(keyBytes);
 
+
+    
     
 
     // We will store in a file (as a keyring, as a keystore file)

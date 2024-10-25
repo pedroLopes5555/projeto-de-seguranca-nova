@@ -9,7 +9,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;  
 
 
-
 /**
  * Decifra
  */
@@ -125,40 +124,40 @@ public class ReceiveDecrypt {
           }
           case "HMAC" -> {
 
+            //hget the size of the HMAC from the config
+            Mac hMac = Mac.getInstance(config.get(ConfigKey.MAC.getValue()));
+            byte[] hmacKeyBytes = Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue()));
+            SecretKeySpec hMacKey = new SecretKeySpec(hmacKeyBytes, config.get(ConfigKey.MAC.getValue()));
+            hMac.init(hMacKey);
+            
+            // Calculate the size of the ciphertext
+            int hmacSize = hMac.getMacLength();
+            int ciphertextSize = UDPPayload.length - hmacSize;
+            
+            //thate the ciphertext and HMAC from UDPPayload
+            byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, ciphertextSize);
+            byte[] receivedHmac = Arrays.copyOfRange(UDPPayload, ciphertextSize, UDPPayload.length);
 
-             //hget the size of the HMAC from the config
-             Mac hMac = Mac.getInstance(config.get(ConfigKey.MAC.getValue()));
-             byte[] hmacKeyBytes = Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue()));
-             SecretKeySpec hMacKey = new SecretKeySpec(hmacKeyBytes, config.get(ConfigKey.MAC.getValue()));
-             hMac.init(hMacKey);
-             
-             // Calculate the size of the ciphertext
-             int hmacSize = hMac.getMacLength();
-             int ciphertextSize = UDPPayload.length - hmacSize;
-             
-             //thate the ciphertext and HMAC from UDPPayload
-             byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, ciphertextSize);
-             byte[] receivedHmac = Arrays.copyOfRange(UDPPayload, ciphertextSize, UDPPayload.length);
+            
 
-             //calc HMAC for the ciphertext
-             hMac.update(ciphertext);
-             byte[] computedHmac = hMac.doFinal();
 
-             // Check integrity
-             boolean isHmacValid = Arrays.equals(computedHmac, receivedHmac);
-             if (!isHmacValid) {
-                 Utils.printInRed("HMAC integrity check failed!");
-             } else {
-                 // Decrypt the ciphertext
-                 byte[] plainText = new byte[cipher.getOutputSize(ciphertext.length)];
-                 int ptLength = cipher.update(ciphertext, 0, ciphertext.length, plainText, 0);
-                 ptLength += cipher.doFinal(plainText, ptLength);
+                              // Decrypt the ciphertext
+            byte[] plainText = new byte[cipher.getOutputSize(ciphertext.length)];
+            int ptLength = cipher.update(ciphertext, 0, ciphertext.length, plainText, 0);
+            ptLength += cipher.doFinal(plainText, ptLength);
 
-                 String originalMessage = new String(plainText);
-                 System.out.println("----------------------------------------------");
-                 System.out.println("MSG Original Plaintext: " + originalMessage);
-          
-                }
+
+            //calc HMAC for the ciphertext
+            hMac.update(plainText);
+            byte[] computedHmac = hMac.doFinal();
+
+            // Check integrity
+            boolean isHmacValid = Arrays.equals(computedHmac, receivedHmac);
+
+            if(!isHmacValid){
+              System.out.println("Integrity Test Failed");
+              System.exit(0);
+            }               
               }
           default -> {
               Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
