@@ -1,3 +1,5 @@
+package DSTP.dstpsend;
+
 import java.io.*;
 import java.net.Socket;
 import java.security.MessageDigest;
@@ -11,10 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 
 
-public class SendEncrypt {
-
-
-
+public class GetEncryptedDatagram {
 
 	private static byte[] createUDPDatagram(byte[] ciphertext, byte[] digest) {
 
@@ -91,65 +90,47 @@ public class SendEncrypt {
 
 
 
-  public static void main(String args[]) throws Exception {
-
-	// if (args.length != 2) {
-	// System.out.println("Usar: SenEncrypt <hostname> <port>");
-	// 	System.exit(-1);
-	// }
+	public static byte[] getEncryptedDatagram(byte[] ptextbytes) throws Exception {
 
 	
-	//get arguments
-	String desthost= "localhost"; // Default;
-	Integer destport = 5999; // Default;
 
-	// Load data
-	IConfigReader configReader = new ConfigReader();
-	var config = configReader.getConfig();
-	//var keys = configReader.getkeys();
+		// Load data
+		IConfigReader configReader = new ConfigReader();
+		var config = configReader.getConfig();
+		//var keys = configReader.getkeys();
 
-	String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
-	
-	// --------------------- Check if it is GCM mode
-	int index = ciphersuite.indexOf("/");
-	String ciphersuiteMode = "";
-        
-	if (index != -1) {
-		ciphersuiteMode = ciphersuite.split("/")[1];
-	}
-	// --------------------- Check if it is GCM mode
+		String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
+		
+		// --------------------- Check if it is GCM mode
+		int index = ciphersuite.indexOf("/");
+		String ciphersuiteMode = "";
+			
+		if (index != -1) {
+			ciphersuiteMode = ciphersuite.split("/")[1];
+		}
+		// --------------------- Check if it is GCM mode
 
-	byte[] ivBytes= new byte[] {
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15 
-	};
+		byte[] ivBytes= new byte[] {
+			0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+			0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15 
+		};
 
-	IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
-	GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
+		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+		GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
 
+		System.out.println("Ciphersuite a usar: " 
+		+ ciphersuite);
 
-	System.out.println("\nDestino:" +desthost + " Porto:" +destport);
-	System.out.println("Ciphersuite a usar: " 
-	+ ciphersuite);
+		String plaintext="INIT";
 
-	String plaintext="INIT";
+		SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()), 
+				config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
 
-	SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()), 
-			config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
-
-	//--------------------------------------------------------
-	//--------------------------------------------------------
+		//--------------------------------------------------------
+		//--------------------------------------------------------
 
 
-	boolean debug = true;
 
-	for(;;)
-	{
-
-		plaintext = prompt("Mensagem Plaintext: ");
-		if (plaintext.equals("exit!")) break;
-		byte[] ptextbytes= plaintext.getBytes();
-		System.out.println("--------------------------------------------");
 
 		
 		Cipher cipher = Cipher.getInstance(ciphersuite);
@@ -180,9 +161,8 @@ public class SendEncrypt {
 									//tampering atack example
 									//			payload[4] ^= '1' ^ '9';
 									//----------------
-									Socket s = new Socket(desthost, destport);
-									sendUDPDatagram(datagram, s);
-									Utils.printInRed("tamanho do datagrama: " + datagram.length);
+									//Socket s = new Socket(desthost, destport);
+									return datagram;
 							}
 					case "HMAC" ->	{
 									// Use HMAC-based integrity
@@ -199,17 +179,20 @@ public class SendEncrypt {
 
 									//create datagram and send
 									datagram = createUDPDatagram(ciphertext, digest);
-									Socket s = new Socket(desthost, destport);
-									sendUDPDatagram(datagram, s);
+									return datagram;
+									//Socket s = new Socket(desthost, destport);
+									//sendUDPDatagram(datagram, s);
 								}
 					default -> {
 							Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
 							System.exit(0);
 					}
 			}
-		}
-		System.exit(0);
+
+			return null;
 	}
+
+	
 
 
 
