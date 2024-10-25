@@ -1,10 +1,12 @@
 
 import java.io.*;
 import java.net.*;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Decifra
@@ -15,19 +17,13 @@ public class ReceiveDecrypt {
 
     Integer  port=5999; 
 
-    // ANSI escape code for red text
-    String red = "\u001B[31m";
-    // ANSI escape code to reset to default
-    String reset = "\u001B[0m";
-
-
     // Load data
     IConfigReader configReader = new ConfigReader();
     var config = configReader.getConfig();
     //var keys = configReader.getkeys();  
 
 
-    String ciphersuite = config.get("CONFIDENTIALITY");  // Retrieve the ciphersuite
+    String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
 
 
     byte[] ivBytes= new byte[] {
@@ -41,7 +37,7 @@ public class ReceiveDecrypt {
     System.out.println("Ciphersuite:" +ciphersuite );
     System.out.println();
 
-    SecretKey key = KeyRing.readSecretKey(config.get("SYMMETRIC_KEY") , config.get("CONFIDENTIALITY").substring(0,3));
+    SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()) , config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
     byte[] UDPDatagram = null;
 
 
@@ -80,7 +76,6 @@ public class ReceiveDecrypt {
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
 
 
-    
 		// Version -> 16 bits
     byte[] version = new byte[] { 0x00, 0x01 };
     // Release -> 8 bits
@@ -90,35 +85,50 @@ public class ReceiveDecrypt {
     int headerLen = version.length + release.length + payloadLen.length;
 
     // Divide Datagram
-    MessageDigest hash = MessageDigest.getInstance(config.get("H"));
+    MessageDigest hash = MessageDigest.getInstance(config.get(ConfigKey.H.getValue()));
     byte[] UDPPayload = Arrays.copyOfRange(UDPDatagram, headerLen, UDPDatagram.length);
 
-    //calculate size of ciphertext
-    int cyphertextSize = UDPPayload.length - hash.getDigestLength(); 
-    //extract ciphertext from UDPPayload (starts at index 0, after the header)
-    byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
-    //extract received hash (starts immediately after the ciphertext)
-    byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
 
-    //check integrity
-    hash.update(ciphertext);
-    byte[] computedHash = hash.digest();
-    Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
 
-    //print or handle message validity
-    System.out.println("Message valid: " + isMessageValid);
+    var integrity = config.get(ConfigKey.INTEGRITY.getValue());
+    if(integrity.equals("H")) {
+      //calculate size of ciphertext
+      int cyphertextSize = UDPPayload.length - hash.getDigestLength(); 
+      //extract ciphertext from UDPPayload (starts at index 0, after the header)
+      byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
+      //extract received hash (starts immediately after the ciphertext)
+      byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
 
-    
+      //check integrity
+      hash.update(ciphertext);
+      byte[] computedHash = hash.digest();
+      Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
 
-    //decypher plaintext
-    byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
-    int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
-    ptLength += cipher.doFinal(plainText, ptLength);
-    String msgoriginal= new String(plainText);
-    System.out.println("----------------------------------------------");      
-    System.out.println("MSG Original Plaintext: "+ msgoriginal );
-  
+      //print or handle message validity
+      System.out.println("Message valid: " + isMessageValid);
 
+      
+
+      //decypher plaintext
+      byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
+      int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
+      ptLength += cipher.doFinal(plainText, ptLength);
+      String msgoriginal= new String(plainText);
+      System.out.println("----------------------------------------------");      
+      System.out.println("MSG Original Plaintext: "+ msgoriginal );
+
+    }else if (integrity.equals("HMAC")){
+
+      var hashFunction = config.get(ConfigKey.MAC.getValue());  
+			Mac hMac = Mac.getInstance(hashFunction);
+			Key hMacKey = new SecretKeySpec(key.getEncoded(), hashFunction);
+
+      
+
+    }else{
+      Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
+			System.exit(0);
+    }
    
     }
   } 

@@ -53,6 +53,17 @@ public class Utils
         System.out.println(red + message + reset);
     }
 
+    public static byte[] toByteArray(String var0) {
+        byte[] var1 = new byte[var0.length()];
+        char[] var2 = var0.toCharArray();
+  
+        for(int var3 = 0; var3 != var2.length; ++var3) {
+           var1[var3] = (byte)var2[var3];
+        }
+  
+        return var1;
+     }
+
 
 }
 
