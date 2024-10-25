@@ -1,12 +1,14 @@
-
 import java.io.*;
 import java.net.*;
-import java.security.Key;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.SecretKeySpec;  
+
+
 
 /**
  * Decifra
@@ -91,46 +93,79 @@ public class ReceiveDecrypt {
 
 
     var integrity = config.get(ConfigKey.INTEGRITY.getValue());
-    if(integrity.equals("H")) {
-      //calculate size of ciphertext
-      int cyphertextSize = UDPPayload.length - hash.getDigestLength(); 
-      //extract ciphertext from UDPPayload (starts at index 0, after the header)
-      byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
-      //extract received hash (starts immediately after the ciphertext)
-      byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
-
-      //check integrity
-      hash.update(ciphertext);
-      byte[] computedHash = hash.digest();
-      Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
-
-      //print or handle message validity
-      System.out.println("Message valid: " + isMessageValid);
-
       
+      switch (integrity) {
+          case "H" -> {
+              //calculate size of ciphertext
+              int cyphertextSize = UDPPayload.length - hash.getDigestLength();
+              //extract ciphertext from UDPPayload (starts at index 0, after the header)
+              byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, cyphertextSize);
+              //extract received hash (starts immediately after the ciphertext)
+              byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
+              
+              
+              //check integrity
+              hash.update(ciphertext);
+              byte[] computedHash = hash.digest();
+              Boolean isMessageValid = Arrays.equals(computedHash, receivedHash);
+              
+              if(!isMessageValid){
+                Utils.printInRed("Integrity not confirmed!!");
+                //System.out(o);
+              }
+              
+              //recalculate original message
+              byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
+              int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
+              ptLength += cipher.doFinal(plainText, ptLength);
 
-      //decypher plaintext
-      byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
-      int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
-      ptLength += cipher.doFinal(plainText, ptLength);
-      String msgoriginal= new String(plainText);
-      System.out.println("----------------------------------------------");      
-      System.out.println("MSG Original Plaintext: "+ msgoriginal );
+              String originalMessage = new String(plainText);
+              System.out.println("----------------------------------------------");
+              System.out.println("MSG Original Plaintext: "+ originalMessage);
+          }
+          case "HMAC" -> {
 
-    }else if (integrity.equals("HMAC")){
 
-      var hashFunction = config.get(ConfigKey.MAC.getValue());  
-			Mac hMac = Mac.getInstance(hashFunction);
-			Key hMacKey = new SecretKeySpec(key.getEncoded(), hashFunction);
+             //hget the size of the HMAC from the config
+             Mac hMac = Mac.getInstance(config.get(ConfigKey.MAC.getValue()));
+             byte[] hmacKeyBytes = Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue()));
+             SecretKeySpec hMacKey = new SecretKeySpec(hmacKeyBytes, config.get(ConfigKey.MAC.getValue()));
+             hMac.init(hMacKey);
+             
+             // Calculate the size of the ciphertext
+             int hmacSize = hMac.getMacLength();
+             int ciphertextSize = UDPPayload.length - hmacSize;
+             
+             //thate the ciphertext and HMAC from UDPPayload
+             byte[] ciphertext = Arrays.copyOfRange(UDPPayload, 0, ciphertextSize);
+             byte[] receivedHmac = Arrays.copyOfRange(UDPPayload, ciphertextSize, UDPPayload.length);
 
-      
+             //calc HMAC for the ciphertext
+             hMac.update(ciphertext);
+             byte[] computedHmac = hMac.doFinal();
 
-    }else{
-      Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
-			System.exit(0);
-    }
+             // Check integrity
+             boolean isHmacValid = Arrays.equals(computedHmac, receivedHmac);
+             if (!isHmacValid) {
+                 Utils.printInRed("HMAC integrity check failed!");
+             } else {
+                 // Decrypt the ciphertext
+                 byte[] plainText = new byte[cipher.getOutputSize(ciphertext.length)];
+                 int ptLength = cipher.update(ciphertext, 0, ciphertext.length, plainText, 0);
+                 ptLength += cipher.doFinal(plainText, ptLength);
+
+                 String originalMessage = new String(plainText);
+                 System.out.println("----------------------------------------------");
+                 System.out.println("MSG Original Plaintext: " + originalMessage);
+          
+                }
+              }
+          default -> {
+              Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
+              System.exit(0);
+          }
+      }
    
     }
   } 
 }
-
