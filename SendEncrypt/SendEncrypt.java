@@ -3,6 +3,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 public class SendEncrypt {
 
@@ -24,19 +25,17 @@ public class SendEncrypt {
 	var config = configReader.getConfig();
 	//var keys = configReader.getkeys();
 
-	// --------------------------------------------- Check data teste
-	ICheckCFG checkCFG = new CheckCFG();
-	boolean validConfig = checkCFG.validateConfig(config);
-
-	if(!validConfig){
-		System.out.println("CFG file invalid");
-		System.exit(0);
-	}
-	// --------------------------------------------- Check data
 
 	String ciphersuite = config.get("CONFIDENTIALITY");  // Retrieve the ciphersuite
-	
-	System.out.println(ciphersuite);
+
+	// --------------------- Check if it is GCM mode
+	int index = ciphersuite.indexOf("/");
+	String ciphersuiteMode = "";
+        
+	if (index != -1) {
+		ciphersuiteMode = ciphersuite.split("/")[1];
+	}
+	// --------------------- Check if it is GCM mode
 
 	byte[] ivBytes= new byte[] {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -44,6 +43,8 @@ public class SendEncrypt {
 	};
 
 	IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+	GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
+
 
 	System.out.println("\nDestino:" +desthost + " Porto:" +destport);
 	System.out.println("Ciphersuite a usar: " 
@@ -69,11 +70,14 @@ public class SendEncrypt {
 
 		
 		Cipher cipher = Cipher.getInstance(ciphersuite);
-		cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+		if(ciphersuiteMode.toUpperCase().equals("GCM")){
+			cipher.init(Cipher.ENCRYPT_MODE, key, gcmParameterSpec);
+		}else{
+			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+		}
 		byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
 
 
-		
 		String integrity = config.get("INTEGRITY");
 		System.out.println(integrity);
 
