@@ -1,5 +1,4 @@
-import java.io.*;
-import java.net.*;
+package DSTP.dstpdecript;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import javax.crypto.Cipher;
@@ -13,12 +12,9 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Decifra
  */
-public class ReceiveDecrypt {
+public class DecriptDatagram {
 
-  public static void main(String args[]) throws Exception {
-
-    Integer  port=5999; 
-
+  public static byte[] GetDecriptedDatagram(byte[] UDPDatagram) throws Exception {
     // Load data
     IConfigReader configReader = new ConfigReader();
     var config = configReader.getConfig();
@@ -53,43 +49,10 @@ public class ReceiveDecrypt {
     IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
     GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
 
-    System.out.println("\nWait cyphertext o port: " +port);
     System.out.println("Ciphersuite:" +ciphersuite );
     System.out.println();
 
     SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()) , config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
-    byte[] UDPDatagram = null;
-
-
-    for(;;)
-    {
-    ServerSocket ss = new ServerSocket(port);
-
-
-    try {
-      Socket s = ss.accept();
-      try {
-        DataInputStream is = new DataInputStream(s.getInputStream());
-        UDPDatagram = new byte[is.readInt()];
-        is.read(UDPDatagram);
-        System.out.println("----------------------------------------------");
-            
-      } 
-      finally {
-        try {
-          s.close();
-        } catch (Exception e) {
-
-        } 
-      } 
-    } 
-
-    finally {
-      try {
-        ss.close();
-      } catch (Exception e) {
-      } 
-    }
 
 
     Cipher cipher = Cipher.getInstance(ciphersuite);
@@ -127,7 +90,6 @@ public class ReceiveDecrypt {
               //extract received hash (starts immediately after the ciphertext)
               byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
               
-              
               //check integrity
               hash.update(ciphertext);
               byte[] computedHash = hash.digest();
@@ -140,12 +102,16 @@ public class ReceiveDecrypt {
               
               //recalculate original message
               byte[] plainText= new byte[cipher.getOutputSize(ciphertext.length)];
+
               int ptLength=cipher.update(ciphertext,0, ciphertext.length, plainText,0);
               ptLength += cipher.doFinal(plainText, ptLength);
 
-              String originalMessage = new String(plainText);
-              System.out.println("----------------------------------------------");
-              System.out.println("MSG Original Plaintext: "+ originalMessage);
+              return plainText;
+
+
+              // String originalMessage = new String(plainText);
+              // System.out.println("----------------------------------------------");
+              // System.out.println("MSG Original Plaintext: "+ originalMessage);
           }
           case "HMAC" -> {
 
@@ -184,7 +150,7 @@ public class ReceiveDecrypt {
               System.exit(0);
             }    
             
-            System.out.println("Mensagem : " + new String(plainText, 0, ptLength));
+            return plainText;
 
           }
           default -> {
@@ -193,6 +159,6 @@ public class ReceiveDecrypt {
           }
       }
    
-    }
+    return null;
   } 
 }
