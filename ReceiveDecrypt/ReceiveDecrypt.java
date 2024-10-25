@@ -38,17 +38,16 @@ public class ReceiveDecrypt {
 
     // --------------------- Get ivBytes from cfg
     String ivHex = config.get(ConfigKey.IV.getValue());
+    if(ivHex.length()%2 != 0){
+      ivHex += ivHex.charAt(ivHex.length()-1);
+    }
+
     byte[] ivBytes= new byte[ivHex.length()/2];
 
     for (int i = 0; i < ivHex.length(); i += 2) {
           ivBytes[i / 2] = (byte) ((Character.digit(ivHex.charAt(i), 16) << 4)
                               + Character.digit(ivHex.charAt(i+1), 16));
       }
-
-    System.out.println("------");
-    System.out.println(ivBytes[0]);
-    System.out.println(0x11);
-    System.out.println("------");
     // --------------------- Get ivBytes from cfg
 
     IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
