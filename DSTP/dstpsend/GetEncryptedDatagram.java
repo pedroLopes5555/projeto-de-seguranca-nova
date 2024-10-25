@@ -121,8 +121,6 @@ public class GetEncryptedDatagram {
 		System.out.println("Ciphersuite a usar: " 
 		+ ciphersuite);
 
-		String plaintext="INIT";
-
 		SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()), 
 				config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
 
@@ -139,7 +137,10 @@ public class GetEncryptedDatagram {
 		}else{
 			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
 		}
-		byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
+
+
+		
+		byte[] ciphertext = cipher.doFinal(ptextbytes);
 
 		String integrity = config.get(ConfigKey.INTEGRITY.getValue());
 		System.out.println(integrity);
