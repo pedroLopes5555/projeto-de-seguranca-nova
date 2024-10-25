@@ -36,10 +36,20 @@ public class ReceiveDecrypt {
     }
     // --------------------- Check if it is GCM mode
 
-    byte[] ivBytes= new byte[] {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-      0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
-        };
+    // --------------------- Get ivBytes from cfg
+    String ivHex = config.get(ConfigKey.IV.getValue());
+    byte[] ivBytes= new byte[ivHex.length()/2];
+
+    for (int i = 0; i < ivHex.length(); i += 2) {
+          ivBytes[i / 2] = (byte) ((Character.digit(ivHex.charAt(i), 16) << 4)
+                              + Character.digit(ivHex.charAt(i+1), 16));
+      }
+
+    System.out.println("------");
+    System.out.println(ivBytes[0]);
+    System.out.println(0x11);
+    System.out.println("------");
+    // --------------------- Get ivBytes from cfg
 
     IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
     GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
