@@ -24,13 +24,10 @@ class CheckCFG  implements ICheckCFG {
     @Override
     public boolean validateConfig(Map<String, String> config) {
 
-
         Provider[] providers = Security.getProviders();
-        Set<String>        ciphers = new HashSet<String>();
-        Set<String>        keyAgreements = new HashSet<String>();
-        Set<String>        macs = new HashSet<String>();
-        Set<String>        messageDigests = new HashSet<String>();
-        Set<String>        signatures = new HashSet<String>();
+        Set<String> ciphers = new HashSet<String>();
+        Set<String> macs = new HashSet<String>();
+        Set<String> messageDigests = new HashSet<String>();
         
         for (int i = 0; i != providers.length; i++)
         {
@@ -38,7 +35,7 @@ class CheckCFG  implements ICheckCFG {
             while (it.hasNext())
             {
                 String	entry = (String)it.next();
-                
+
                 if (entry.startsWith("Alg.Alias."))
                 {
                     entry = entry.substring("Alg.Alias.".length());
@@ -46,60 +43,38 @@ class CheckCFG  implements ICheckCFG {
                 
                 if (entry.startsWith("Cipher."))
                 {
-                    ciphers.add(entry.substring("Cipher.".length()));
-                }
-                else if (entry.startsWith("KeyAgreement."))
-                {
-                    keyAgreements.add(entry.substring("KeyAgreement.".length()));
-                }
-                else if (entry.startsWith("Mac."))
-                {
-                    macs.add(entry.substring("Mac.".length()));
+                    ciphers.add(entry.substring("Cipher.".length()).split(" ")[0]);
                 }
                 else if (entry.startsWith("MessageDigest."))
                 {
-                    messageDigests.add(entry.substring("MessageDigest.".length()));
+                    messageDigests.add(entry.substring("MessageDigest.".length()).split(" ")[0]);
                 }
-                else if (entry.startsWith("Signature."))
+                else if (entry.startsWith("Mac."))
                 {
-                    signatures.add(entry.substring("Signature.".length()));
+                    macs.add(entry.substring("Mac.".length()).split(" ")[0]);
                 }
             }
         }
-        
-        printSet("Ciphers (Alg.): ", ciphers);
-        printSet("KeyAgreeents: ", keyAgreements);
-        printSet("MACs: ", macs);
-        printSet("MessageDigests (Secure Hash-Functions): ", messageDigests);
-        printSet("Signatures (Digital Sigantures w/ PubKey Methods) :", signatures);
 
-        return false;
-    }
+        System.out.println(config.get("CONFIDENTIALITY"));
+        System.out.println(config.get("H"));
+        System.out.println(config.get("MAC"));
 
-    private static void printSet(
-        String setName,
-        Set<String> algorithms)
-    {
-        System.out.println("----------------------------------------------------");
-        System.out.println(setName);
-        System.out.println("----------------------------------------------------");
-        
-        if (algorithms.isEmpty())
-        {
-	    System.out.println("------------------------------------------------");
-            System.out.println("            None available.");
-	    System.out.println("------------------------------------------------");
+        if(!ciphers.contains(config.get("CONFIDENTIALITY"))){
+            System.out.println("Failed Confidentiality check!");
+            return false;
         }
-        else
-        {
-            Iterator<?>	it = algorithms.iterator();
-            
-            while (it.hasNext())
-            {
-                String	name = (String)it.next();
-                
-                System.out.println("  " + name);
-            }
+
+        if(!messageDigests.contains(config.get("H"))){
+            System.out.println("Failed Hash check!");
+            return false;
         }
+
+        if(!macs.contains(config.get("MAC"))){
+            System.out.println("Failed Mac check!");
+            return false;
+        }
+
+        return true;
     }
 }
