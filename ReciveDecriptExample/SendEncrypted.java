@@ -1,10 +1,11 @@
+package ReciveDecriptExample;
 import DSTP.dstpsend.GetEncryptedDatagram;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class SendEncryptedMessage {
+public class SendEncrypted {
 
     
 	private static void sendUDPDatagram(byte[] UDPPayload, Socket s) {

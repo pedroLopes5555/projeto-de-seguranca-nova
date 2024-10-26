@@ -1,9 +1,10 @@
+
+package ReciveDecriptExample;
 import DSTP.dstpdecript.DecriptDatagram;
 import DSTP.dstpdecript.EncriptedDatagramResoult;
 import java.io.DataInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 
 public class ReciveDecript {
@@ -51,7 +52,7 @@ public class ReciveDecript {
                 System.out.println("\n");
                 EncriptedDatagramResoult result =  DecriptDatagram.GetDecriptedDatagram(UDPDatagram);
                 System.out.println("recebeste: " + new String(result.getPtextBytes()));
-                System.out.println("numero de sequencia : " + Arrays.toString(result.getSequenceNumber()));
+                System.out.println("numero de sequencia : " + Arrays(result.getSequenceNumber()));
 
             }
 
