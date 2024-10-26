@@ -1,50 +1,58 @@
 import DSTP.dstpdecript.DecriptDatagram;
 import DSTP.dstpdecript.EncriptedDatagramResoult;
-import java.net.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
+import java.util.Arrays;
 
 public class MulticastReceiver {
+    private static final String MULTICAST_ADDRESS = "224.0.0.3"; // same address as sender
+    private static final int PORT = 4446; // same port as sender
 
-    public static void main(String[] args ) throws Exception {
-	    
-        
-        if( args.length != 2 ) {
-		    System.err.println("usage: java MulticastReceiver grupo_multicast porto") ;
-		    System.exit(0) ;
-	    }
- 
-        int port = Integer.parseInt( args[1]) ;
-        InetAddress group = InetAddress.getByName( args[0] ) ;
+    public static void main(String[] args) {
+        try (MulticastSocket socket = new MulticastSocket(PORT)) {
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            
+            // Use a NetworkInterface for joining the group
+            NetworkInterface networkInterface = NetworkInterface.getByName("eth0"); 
+            if (networkInterface == null) {
+                System.out.println("Network interface not found. Please specify a valid network interface.");
+                return;
+            }
+            
+            // Join the group using SocketAddress and NetworkInterface
+            socket.joinGroup(new InetSocketAddress(group, PORT), networkInterface);
+            
+            System.out.println("Waiting for encrypted messages...");
 
-        if( !group.isMulticastAddress() ) {
-	        System.err.println("Multicast address required...") ;
-	        System.exit(0) ;
+            byte[] buffer = new byte[256];
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            
+            // Receive a packet
+            socket.receive(packet);
+            
+            // Get the encrypted data from the packet
+            byte[] encryptedData = new byte[packet.getLength()];
+            System.arraycopy(packet.getData(), 0, encryptedData, 0, packet.getLength());
+
+            // Decrypt the received data
+            EncriptedDatagramResoult result = DecriptDatagram.GetDecriptedDatagram(encryptedData);
+            
+            // Display the decrypted message and sequence number
+            System.out.println("Decrypted message received: " + new String(result.getPtextBytes()));
+            System.out.println("Sequence number: " + Arrays.toString( result.getSequenceNumber()));
+            
+            // Leave the group after receiving the message
+            socket.leaveGroup(new InetSocketAddress(group, PORT), networkInterface);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            // Handle exceptions related to decryption
+            System.err.println("Decryption error: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        MulticastSocket rs = new MulticastSocket(port) ;
-
-        rs.joinGroup(group);
-
-        DatagramPacket p = new DatagramPacket( new byte[65536], 65536 ) ;
-        String recvmsg;
-
-    do {
-
-        p.setLength(65536); // resize with max size
-	    rs.receive(p);
-        recvmsg =  new String( p.getData(), 0, p.getLength() ) ;
-        
-
-    EncriptedDatagramResoult result =  DecriptDatagram.GetDecriptedDatagram(p.getData());
-
-	System.out.println("Msg recebida: "+ new String(result.getPtextBytes())) ;
-    
-
-
-
-} while(!recvmsg.equals("fim!")) ;
-
-    // rs.leave if you want leave from the multicast group ...
-    rs.close();
-	    
     }
 }

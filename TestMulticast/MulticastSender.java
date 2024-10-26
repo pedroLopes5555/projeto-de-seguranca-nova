@@ -1,62 +1,28 @@
-import DSTP.dstpsend.GetEncryptedDatagram;
-import java.net.*;
-import java.util.*;
+import DSTP.dstpsend.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class MulticastSender {
+    private static final String MULTICAST_ADDRESS = "224.0.0.3"; // multicast address (within 224.0.0.0 - 239.255.255.255 range)
+    private static final int PORT = 4446; // port for communication
+    
+    public static void main(String[] args) throws Exception {
+        try (DatagramSocket socket = new DatagramSocket()) {
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            String message = "Hello, Multicast!";
+            
 
-    public static void main(String[] args ) throws Exception {
-        
-        
-        
-        if( args.length != 3 ) {
-            System.err.println("usage: java MulticastSender  grupo_multicast porto time-interval") ;
-            System.exit(0) ;
+            byte[] dstpDatagram = GetEncryptedDatagram.getEncryptedDatagram(message.getBytes(), 1);
+
+            DatagramPacket packet = new DatagramPacket(dstpDatagram, dstpDatagram.length, group, PORT);
+            
+            // Send the packet
+            socket.send(packet);
+            System.out.println("Message sent: " + message);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
- 
-        int more=20; // change if needed, send 20 time a MCAST message
-        int port = Integer.parseInt( args[1]) ;
-        InetAddress group = InetAddress.getByName( args[0] ) ;
-        int timeinterval = Integer.parseInt( args[2]) ;
-        String msg;
-
-        if( !group.isMulticastAddress() ) {
-            System.err.println("Multicast address required...") ;
-            System.exit(0) ;
-        }
-
-        MulticastSocket ms = new MulticastSocket() ;
-
-
-        do {
-
-
-            String msgsecret="topcsecret message, sent on: ";
-            String msgdate = new Date().toString();
-            msg=msgsecret+msgdate;
-
-
-
-            byte[] encryptedDatagramData = GetEncryptedDatagram.getEncryptedDatagram(msg.getBytes(), 1);
-
-
-            ms.send( new DatagramPacket( encryptedDatagramData, encryptedDatagramData.length, group, port ) ) ;
-
-        --more;    
-
-        try {
-            Thread.sleep(1000*timeinterval);
-        } 
-
-
-        catch (InterruptedException e) { }
-
-        } while( more >0 ) ;
-
-
-        msg="fim!";
-        ms.send( new DatagramPacket( msg.getBytes(), msg.getBytes().length, group, port ) ) ;
-        ms.close();
-	    
     }
 }
-
