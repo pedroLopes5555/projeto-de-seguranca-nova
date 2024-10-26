@@ -73,17 +73,6 @@ public class GetEncryptedDatagram {
 
 
 
-	private static String prompt(String prompt) throws IOException {
-		System.out.print(prompt);
-		System.out.flush();
-		BufferedReader input = 
-			new BufferedReader(new InputStreamReader(System.in));
-		String response = input.readLine();
-		System.out.println();
-		return response;
-	} 
-
-	
 
 
 
@@ -145,22 +134,9 @@ public class GetEncryptedDatagram {
 		
 		// Combine sequence number and plaintext
 		byte[] sequenceNumberArray = Utils.intToByteArray(sequenceNumer);
-		
 		byte[] sequenceNumberAndPtext = Utils.combineArrays(sequenceNumberArray, ptextbytes);
-
-		System.out.println("tamanmho do sequence number: " + sequenceNumberArray.length);
-		System.out.println("tamanho dop ptext: " +  ptextbytes.length);
-		System.out.println("tamanho dos 2 juntos: " + sequenceNumberAndPtext.length);
-
-		System.out.println("valor do sequence number: " + Arrays.toString(sequenceNumberArray));
-		System.out.println("ptext : " + new String(ptextbytes));
-		System.out.println("2juntos: " + Arrays.toString(sequenceNumberAndPtext));
-
-
-
 		// Encrypt the combined array
 		byte[] ciphertext = cipher.doFinal(sequenceNumberAndPtext);
-
 
 
 		String integrity = config.get(ConfigKey.INTEGRITY.getValue());
@@ -178,10 +154,8 @@ public class GetEncryptedDatagram {
 									digest = hash.digest();
 									//digest is the cihertext hashed
 									datagram = createUDPDatagram(ciphertext, digest);
-									//tampering atack example
-									//			payload[4] ^= '1' ^ '9';
-									//----------------
-									//Socket s = new Socket(desthost, destport);
+
+									
 									return datagram;
 							}
 					case "HMAC" ->	{
@@ -192,13 +166,19 @@ public class GetEncryptedDatagram {
 													Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue())),
 													config.get(ConfigKey.MAC.getValue())
 									);
+
+									
 									//inicialize hashe
 									hMac.init(hMacKey);
-									hMac.update(sequenceNumberAndPtext); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
+									hMac.update(ciphertext); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
 									digest = hMac.doFinal();
-
+									int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 4; // 256 bits / 8 bits per byte = 32 bytes
 									//create datagram and send
 									datagram = createUDPDatagram(ciphertext, digest);
+
+
+									System.out.println("seqeunce number: " + Arrays.toString(sequenceNumberArray));
+
 									return datagram;
 									//Socket s = new Socket(desthost, destport);
 									//sendUDPDatagram(datagram, s);
