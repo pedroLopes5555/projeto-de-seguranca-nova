@@ -1,5 +1,4 @@
-package ReciveDecriptExample;
-import DSTP.dstpsend.GetEncryptedDatagram;
+import DSTP.dstpsend.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;

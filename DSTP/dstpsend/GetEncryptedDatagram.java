@@ -17,26 +17,29 @@ import javax.crypto.spec.SecretKeySpec;
 public class GetEncryptedDatagram {
 
 	private static byte[] createUDPDatagram(byte[] ciphertext, byte[] digest) {
-
-		//Version -> 16 bits
+		// Version -> 16 bits
 		byte[] version = new byte[] { 0x00, 0x01 };
-		//Release -> 8 bits
+		// Release -> 8 bits
 		byte[] release = new byte[] { 0x01 };
-		//Payload length -> 16 bits
-		byte[] payloadLen = new byte[] { 0x00, 0x01 };
-
+	
+		// Calculate the payload length and convert it to a 16-bit byte array
+		int payloadLength = ciphertext.length; // Use the length of the ciphertext
+		byte[] payloadLen = new byte[2];
+		payloadLen[0] = (byte) ((payloadLength >> 8) & 0xFF); // High byte
+		payloadLen[1] = (byte) (payloadLength & 0xFF); // Low byte
+	
 		int headerLen = version.length + release.length + payloadLen.length;
 		byte[] combined = new byte[headerLen + ciphertext.length + digest.length];
-
+	
 		System.arraycopy(version, 0, combined, 0, version.length);
 		System.arraycopy(release, 0, combined, version.length, release.length);
 		System.arraycopy(payloadLen, 0, combined, version.length + release.length, payloadLen.length);
 		System.arraycopy(ciphertext, 0, combined, headerLen, ciphertext.length);
 		System.arraycopy(digest, 0, combined, headerLen + ciphertext.length, digest.length);
-
-
+	
 		return combined;
 	}
+	
 
 
 

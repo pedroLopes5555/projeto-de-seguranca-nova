@@ -62,16 +62,25 @@ public class DecriptDatagram {
 		}
     
 
-
-		// Version -> 16 bits
-    byte[] version = new byte[] { 0x00, 0x01 };
-    // Release -> 8 bits
-    byte[] release = new byte[] { 0x01 };
-    // Payload length -> 16 bits
-    byte[] payloadLen = new byte[] { 0x00, 0x01 };
-    int headerLen = version.length + release.length + payloadLen.length;
-
-    byte[] UDPPayload = Arrays.copyOfRange(UDPDatagram, headerLen, UDPDatagram.length);
+      // Extract the version (2 bytes), release (1 byte), and payload length (2 bytes)
+      // Version -> 16 bits
+      byte[] version = Arrays.copyOfRange(UDPDatagram, 0, 2);
+      
+      // Release -> 8 bits
+      byte[] release = Arrays.copyOfRange(UDPDatagram, 2, 3);
+      
+      // Payload length -> 16 bits (2 bytes)
+      byte[] payloadLenBytes = Arrays.copyOfRange(UDPDatagram, 3, 5);
+      
+      // Convert payload length from bytes to an integer
+      int payloadLength = ((payloadLenBytes[0] & 0xFF) << 8) | (payloadLenBytes[1] & 0xFF);
+      
+      // Calculate header length
+      int headerLen = version.length + release.length + payloadLenBytes.length;
+      
+      // Extract the UDP payload based on the payload length
+      byte[] UDPPayload = Arrays.copyOfRange(UDPDatagram, headerLen, headerLen + payloadLength);
+      
 
 
     var integrity = config.get(ConfigKey.INTEGRITY.getValue());
