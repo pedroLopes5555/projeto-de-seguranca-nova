@@ -1,0 +1,22 @@
+// SRSC 1718
+
+Correr simplesmente ...
+
+UDP/IPmulticast Multicast Sender:
+--------------------------------
+java -Djava.net.preferIPv4Stack=true MulticastSender <multicast-address> <port> <time-interval-seconds>
+
+
+UDP/IPmulticast Multicast Receiver:
+-----------------------------------
+java -Djava.net.preferIPv4Stack=true MulticastReceiver <multicast-address> <port>
+
+
+
+
+
+
+java -Djava.net.preferIPv4Stack=true MulticastReceiver 224.0.0.3 4446
+java -Djava.net.preferIPv4Stack=true MulticastSender 224.0.0.3 4446 2
+javac -Xlint:deprecation MulticastReceiver.java
+javac -Xlint:deprecation MulticastSender.java
