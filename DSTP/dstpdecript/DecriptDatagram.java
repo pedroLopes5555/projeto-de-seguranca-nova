@@ -118,7 +118,7 @@ public class DecriptDatagram {
                     Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue())),
                     config.get(ConfigKey.MAC.getValue()));
                   
-            int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 4;
+            int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 8;
 
             //calculate size of ciphertext
             int cyphertextSize = UDPPayload.length - digestSize;

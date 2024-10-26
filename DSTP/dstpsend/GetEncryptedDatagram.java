@@ -172,7 +172,7 @@ public class GetEncryptedDatagram {
 									hMac.init(hMacKey);
 									hMac.update(ciphertext); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
 									digest = hMac.doFinal();
-									int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 4; // 256 bits / 8 bits per byte = 32 bytes
+									int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 5; // 256 bits / 8 bits per byte = 32 bytes
 									//create datagram and send
 									datagram = createUDPDatagram(ciphertext, digest);
 
