@@ -1,44 +1,27 @@
-SRSC 24/25
-Here you have an implementation to send/receive encrypted messages
+project run:
 
-See
-SendEncrypt
------------
-Code for a client sending an encrypted message to th server
+DSTP folder is the library folder (sender and decrypt)
 
-ReceiveDecrypt:
---------------
-Code for a server receiving the encrypted message that iwll be decryptd
+in SendReciveSimpleExample we can see a simple example of a implementaction of the DSTP developed.
 
-Notes:
+In oder to test streaming:
+pull from docker hub the proxy and the server docker containers:
 
-Client (SendEcrypt) and server (ReceiveDecrypt) use locally "keyrings", that share the same generated key to be used (to support the encryption and decryptio using. SendEncrypt and ReceiveDecrypt use (in common) a class named
-KeyRing to manipulate the keyring stored keys (in keyring file)
+proxy:
+docker pull lopes5555/hjudp-proxy
 
-For setup you need to generate initially the keys for keyring and then
-you can copy the geerated keyring to be used by the client and server
-(e.g., a very simple form of ... "key distribution" ;-)
+stream server:
+docker pull lopes5555/hjstream-server
 
-You must note that in the implementation, client sends ONE MESSAGE each time to the server, and the message is sent/received in TCP (using TCP Sockets).
-Moreover, ... defaut port for the server is 5999 as you will see, but you
-can express the port as one input argument
+to run:
+proxy:
+docker run --rm -it --network host lopes5555/hjudp-proxy endpoint1 endpoint2 cryptoconfig_path
+example: docker run --rm -it --network host lopes5555/hjudp-proxy 192.168.68.55:9000 192.168.68.56:9000 cryptoconfig.txt
 
-To start the server (in ReceiveDecrypt dir):
+server:
+docker run --rm -it --network host hjudp-server movie.dat prozy_endpoint cryptoconfig.txt
+example: docker run --rm -it --network host hjudp-server cars.dat 127.0.0.2 9000 cryptoconfig.txt
 
-java ReceiveDecrypt           // Runs in defaut port 5999
-java ReceiveDecrypt <port>    // Runs in the provided port
-
-To use the client (in SendEncrypt dir):
-
-java SendEncrypt <hostname> <port>
-
-hostname: the hostname (machine) where the server runs
-port: the port where the server is
-
-
-
-
-
-
+![Alt text](/images/streaming.png)
 
 
