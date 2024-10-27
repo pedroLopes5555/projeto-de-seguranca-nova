@@ -162,7 +162,6 @@ public class GetEncryptedDatagram {
 									hash.update(ciphertext);
 									digest = hash.digest();
 									//digest is the cihertext hashed
-
 									datagram = createUDPDatagram(ciphertext, digest);
 								
 									return datagram;

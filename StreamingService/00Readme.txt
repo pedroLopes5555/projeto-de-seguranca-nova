@@ -57,3 +57,15 @@ You must know how to configure UDP endpoints for receiving
 network streaming, when using IP unicasting or IP multicasting.
 
 
+
+
+
+
+java hjStreamServer movie-file.mp4 127.0.0.1 9000
+java hjUDPproxy 127.0.0.1:9000 127.0.0.1:8888
+
+
+udp://@127.0.0.1:8888
+
+
+

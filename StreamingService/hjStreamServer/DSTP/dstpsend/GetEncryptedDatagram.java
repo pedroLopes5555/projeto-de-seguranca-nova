@@ -163,8 +163,7 @@ public class GetEncryptedDatagram {
 									digest = hash.digest();
 									//digest is the cihertext hashed
 									datagram = createUDPDatagram(ciphertext, digest);
-
-									
+								
 									return datagram;
 							}
 					case "HMAC" ->	{
