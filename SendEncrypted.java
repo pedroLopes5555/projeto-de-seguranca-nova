@@ -61,6 +61,5 @@ public class SendEncrypted {
             Thread.sleep(3000);
         }
 
-        
     }
 }

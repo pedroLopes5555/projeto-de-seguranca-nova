@@ -138,12 +138,27 @@ public class DecriptDatagram {
             //extract received hash (starts immediately after the ciphertext)
             byte[] receivedHash = Arrays.copyOfRange(UDPPayload, cyphertextSize, UDPPayload.length);
 
-                          //recalculate original message
+            //recalculate original message
             byte[] plainTextAndSequenceNumber= new byte[cipher.getOutputSize(sequenceNumberAndPTextCiphered.length)];
 
             int ptLength=cipher.update(sequenceNumberAndPTextCiphered,0, sequenceNumberAndPTextCiphered.length, plainTextAndSequenceNumber,0);
             ptLength += cipher.doFinal(plainTextAndSequenceNumber, ptLength);
 
+
+
+            //inicialize hashe
+            hMac.init(hMacKey);
+            hMac.update(sequenceNumberAndPTextCiphered); 
+            byte[] digest = hMac.doFinal();
+
+
+            Boolean isMessageValid = Arrays.equals(digest, receivedHash);
+              
+            if(!isMessageValid){
+              Utils.printInRed("Integrity not confirmed!!");
+              //System.out(o);
+            }
+            
 
             //now take the sequence number out of the plainTextAndSequenceNumber
             byte[] sequenceNumber = Arrays.copyOfRange(plainTextAndSequenceNumber, 0, 2);
