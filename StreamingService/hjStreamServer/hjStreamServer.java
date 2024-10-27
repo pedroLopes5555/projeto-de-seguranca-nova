@@ -12,11 +12,11 @@ import java.net.*;
 class hjStreamServer {
 
 	static public void main(String[] args) throws Exception {
-		if (args.length != 3) {
-			System.out.println("Use: hjStramSrver <movie> <ip-multicast-address> <port>");
-			System.out.println("Ex: hjStreamSrver  <movie> 224.2.2.2 9000");
-			System.out.println(" or: hjStreamSrver  <movie> <ip-unicast-address> <port>");
-			System.out.println("Ex: hjStreamSrver  <movie> 127.0.0.1 10000");
+		if (args.length != 4) {
+			System.out.println("Use: hjStramSrver <movie> <ip-multicast-address> <port> cfgFilePath");
+			System.out.println("Ex: hjStreamSrver  <movie> 224.2.2.2 9000 cfgFilePath");
+			System.out.println(" or: hjStreamSrver  <movie> <ip-unicast-address> <port> cfgFilePath");
+			System.out.println("Ex: hjStreamSrver  <movie> 127.0.0.1 10000 cfgFilePath");
 
 			System.exit(-1);
 		}
@@ -46,7 +46,7 @@ class hjStreamServer {
 			g.readFully(buff, 0, size);
 
 			// Encrypt the datagram data before sending
-			byte[] encryptedData = GetEncryptedDatagram.getEncryptedDatagram(buff, count);
+			byte[] encryptedData = GetEncryptedDatagram.getEncryptedDatagram(buff, count, args[3]);
 			p.setData(encryptedData, 0, encryptedData.length);
 			p.setSocketAddress(addr);
 

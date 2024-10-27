@@ -39,7 +39,7 @@ disseminated movie streams (from the Streaming server) and
 delivers the streams to be played by a media player App.
 
 Depending on the arguents used for the StreamServer, the
-Proxy must be launched with the corrspondent arguments.
+Proxy must be launched with the corrspondent arguments. 
 
 hjUDPproxy <endpoint1> <endpoint2>
 <endpoint1>: endpoint for receiving stream

@@ -1,6 +1,9 @@
 /*
  * hjUDPproxy, for use in 2024
  */
+
+import DSTP.dstpdecript.DecriptDatagram;
+import DSTP.dstpdecript.EncriptedDatagramResoult;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -8,12 +11,10 @@ import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-import DSTP.dstpdecript.DecriptDatagram;
-import DSTP.dstpdecript.EncriptedDatagramResoult;
 
 class hjUDPproxy {
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
+        if (args.length != 3) {
             System.out.println("Use: hjUDPproxy <endpoint1> <endpoint2>");
             System.out.println("<endpoint1>: endpoint for receiving stream");
             System.out.println("<endpoint2>: endpoint of media player");
@@ -41,7 +42,7 @@ class hjUDPproxy {
 
             // Decrypt the received data
             byte[] receivedData = Arrays.copyOfRange(inPacket.getData(), 0, inPacket.getLength());
-            EncriptedDatagramResoult decryptedResult = DecriptDatagram.GetDecriptedDatagram(receivedData);
+            EncriptedDatagramResoult decryptedResult = DecriptDatagram.GetDecriptedDatagram(receivedData, args[2]);
 
             // Extract the decrypted payload
             byte[] decryptedData = decryptedResult.getPtextBytes();
