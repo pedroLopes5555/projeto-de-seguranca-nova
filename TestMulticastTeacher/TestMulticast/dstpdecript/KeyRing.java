@@ -1,4 +1,4 @@
-package DSTP.dstpdecript;
+package dstpdecript;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 

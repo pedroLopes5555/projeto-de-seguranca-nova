@@ -1,4 +1,4 @@
-package DSTP.dstpdecript;
+package dstpdecript;
 
 public class EncriptedDatagramResoult {
 

@@ -1,0 +1,14 @@
+# Use an OpenJDK base image with Java installed
+FROM openjdk:22-jdk
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the entire project into the container
+COPY . .
+
+# Compile hjUDPproxy and the DSTP package
+RUN javac -cp . hjUDPproxy.java DSTP/dstpdecript/*.java
+
+# Set the entrypoint to run hjUDPproxy with any provided arguments
+ENTRYPOINT ["java", "-cp", ".", "hjUDPproxy"]

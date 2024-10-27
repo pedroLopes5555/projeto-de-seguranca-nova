@@ -1,4 +1,4 @@
-package DSTP.dstpsend;
+package dstpsend;
 import java.security.Provider;
 import java.security.Security;
 import java.util.HashSet;

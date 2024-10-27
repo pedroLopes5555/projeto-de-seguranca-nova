@@ -1,7 +1,6 @@
-package DSTP.dstpdecript;
+package dstpdecript;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -15,12 +14,12 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class DecriptDatagram {
 
-  public static EncriptedDatagramResoult GetDecriptedDatagram(byte[] UDPDatagram) throws Exception {
-    // Load data
-    IConfigReader configReader = new ConfigReader();
-    Map<String, String> config = configReader.getConfig();
-    //var keys = configReader.getkeys();  
-
+  public static EncriptedDatagramResoult GetDecriptedDatagram(byte[] UDPDatagram, String CfgFilePathString) throws Exception {
+		
+		// Load data
+		IConfigReader configReader = new ConfigReader(CfgFilePathString);
+		var config = configReader.getConfig();
+		//var keys = configReader.getkeys();
 
     String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
 

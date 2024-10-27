@@ -1,4 +1,6 @@
-package DSTP.dstpdecript;
+
+package dstpsend;
+
 public enum ConfigKey {
     CONFIDENTIALITY("CONFIDENTIALITY"),
     SYMMETRIC_KEY("SYMMETRIC_KEY"),

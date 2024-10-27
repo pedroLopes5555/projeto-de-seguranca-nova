@@ -1,12 +1,12 @@
-import DSTP.dstpdecript.DecriptDatagram;
-import DSTP.dstpdecript.EncriptedDatagramResoult;
+import dstpdecript.DecriptDatagram;
+import dstpdecript.EncriptedDatagramResoult;
 import java.net.*;
 
 public class MulticastReceiver {
 
     public static void main(String[] args ) throws Exception {
-	    if( args.length != 2 ) {
-		System.err.println("usage: java MulticastReceiver grupo_multicast porto") ;
+	    if( args.length != 3 ) {
+		System.err.println("usage: java MulticastReceiver grupo_multicast porto cryptoconfig_path") ;
 		System.exit(0) ;
 	    }
  
@@ -30,7 +30,7 @@ public class MulticastReceiver {
         p.setLength(65536); // resize with max size
 	    rs.receive(p) ;
 
-        EncriptedDatagramResoult result = DecriptDatagram.GetDecriptedDatagram(p.getData());
+        EncriptedDatagramResoult result = DecriptDatagram.GetDecriptedDatagram(p.getData(), args[2]);
 
         recvmsg =  new String(result.getPtextBytes());
         

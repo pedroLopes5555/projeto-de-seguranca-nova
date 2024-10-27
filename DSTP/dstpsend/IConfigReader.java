@@ -11,7 +11,6 @@ import java.util.*;
 
 
 public interface IConfigReader {
-
     public Map<String, String> getConfig();
     public  List<String> getkeys();
 }
@@ -21,11 +20,11 @@ public interface IConfigReader {
 class ConfigReader implements   IConfigReader{
 
 
+    private String _configFilePath;
 
-    public ConfigReader() {
-        super();
+    public ConfigReader(String configFilePath) {
+        _configFilePath = configFilePath;
     }
-    private String _configFilePath = "cryptoconfig.txt";
 
 
     @Override

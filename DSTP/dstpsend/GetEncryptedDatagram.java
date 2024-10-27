@@ -87,10 +87,10 @@ public class GetEncryptedDatagram {
 
 
 
-	public static byte[] getEncryptedDatagram(byte[] ptextbytes, int sequenceNumer) throws Exception {
+	public static byte[] getEncryptedDatagram(byte[] ptextbytes, int sequenceNumer, String CfgFilePathString) throws Exception {
 
 		// Load data
-		IConfigReader configReader = new ConfigReader();
+		IConfigReader configReader = new ConfigReader(CfgFilePathString);
 		var config = configReader.getConfig();
 		//var keys = configReader.getkeys();
 

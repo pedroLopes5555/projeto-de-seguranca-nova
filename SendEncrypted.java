@@ -48,7 +48,7 @@ public class SendEncrypted {
         byte[] data = message.getBytes();
 
         for (int i = 0; i < 10; i++) {
-            byte[] encryptedDatagramData = GetEncryptedDatagram.getEncryptedDatagram(data, i);
+            byte[] encryptedDatagramData = GetEncryptedDatagram.getEncryptedDatagram(data, i, "cryptoconfig.txt");
 
             try {
                 Socket s = new Socket(desthost, destport);

@@ -50,7 +50,7 @@ public class ReciveDecript {
             System.out.println("estou aqui");
             if(UDPDatagram != null){
                 System.out.println("\n");
-                EncriptedDatagramResoult result =  DecriptDatagram.GetDecriptedDatagram(UDPDatagram);
+                EncriptedDatagramResoult result =  DecriptDatagram.GetDecriptedDatagram(UDPDatagram, "cryptoconfig.txt");
                 System.out.println("recebeste: " + new String(result.getPtextBytes()));
                 System.out.println("numero de sequencia : " + Arrays.toString(result.getSequenceNumber()));
 

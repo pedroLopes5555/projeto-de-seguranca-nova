@@ -1,5 +1,4 @@
 package DSTP.dstpdecript;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import java.util.*;
 
 
 public interface IConfigReader {
-
     public Map<String, String> getConfig();
     public  List<String> getkeys();
 }
@@ -22,19 +20,17 @@ public interface IConfigReader {
 class ConfigReader implements   IConfigReader{
 
 
+    private String _configFilePath;
 
-    public ConfigReader() {
-        super();
+    public ConfigReader(String configFilePath) {
+        _configFilePath = configFilePath;
     }
-    private String _configFilePath = "cryptoconfig.txt";
 
 
     @Override
     public Map<String, String> getConfig() {
         
         Map<String, String> result = new HashMap<>();
-
-        //Adding configuration settings to the map
 
         try (BufferedReader br = new BufferedReader(new FileReader(_configFilePath))) {
             String line;

@@ -1,12 +1,12 @@
-import DSTP.dstpsend.GetEncryptedDatagram;
+import dstpsend.GetEncryptedDatagram;
 import java.net.*;
 import java.util.*;
 
 public class MulticastSender {
 
     public static void main(String[] args ) throws Exception {
-	    if( args.length != 3 ) {
-		    System.err.println("usage: java MulticastSender  grupo_multicast porto time-interval") ;
+	    if( args.length != 4 ) {
+		    System.err.println("usage: java MulticastSender  grupo_multicast porto time-interval criptoconfig_path") ;
 		    System.exit(0) ;
 	    }
     
@@ -27,7 +27,7 @@ public class MulticastSender {
             String msgdate = new Date().toString();
             msg=msgsecret+msgdate;
 
-            byte[] dstpDatagram = GetEncryptedDatagram.getEncryptedDatagram(msg.getBytes(), 1);
+            byte[] dstpDatagram = GetEncryptedDatagram.getEncryptedDatagram(msg.getBytes(), 1, args[3]);
 
 
         ms.send( new DatagramPacket( dstpDatagram, dstpDatagram.length, group, port ) ) ;
