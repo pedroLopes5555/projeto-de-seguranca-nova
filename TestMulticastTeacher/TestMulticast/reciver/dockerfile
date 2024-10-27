@@ -1,0 +1,14 @@
+# Use an OpenJDK base image
+FROM openjdk:22-jdk
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the Java source files into the container
+COPY . .
+
+# Compile the Java files
+RUN javac -Xlint:deprecation dstpdecript/*.java MulticastReceiver.java
+
+# Set the entrypoint to run the MulticastReceiver program
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "MulticastReceiver"]
