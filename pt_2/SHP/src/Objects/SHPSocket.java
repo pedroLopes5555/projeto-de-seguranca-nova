@@ -1,7 +1,5 @@
 package Objects;
 
-import java.util.ArrayList;
-import java.util.List;
 /*
     This class is representative of the TCP socket that the Secure Handshake Protocol will use
 */
@@ -15,7 +13,7 @@ public class SHPSocket {
     private int HEADER_SIZE = 3;
 
     // Constructor
-    public SHPSocket(byte protocolVersion, byte protocolRelease, byte msgTypeCode, byte[] payload) throws Exception {
+    public SHPSocket(byte protocolVersion, byte protocolRelease, MessageType msgTypeCode, byte[] payload) throws Exception {
 
         if (protocolVersion > 0x15){
             throw new Exception("protocool version max size is 4 bits");
@@ -26,18 +24,17 @@ public class SHPSocket {
 
         this.protocolVersion = protocolVersion;
         this.protocolRelease = protocolRelease;
-        this.msgTypeCode = msgTypeCode;
+        this.msgTypeCode = msgTypeCode.getValue();
         this.payload = payload;
     }
 
 
-    public SHPSocket(byte msgTypeCode, byte[] payload) throws Exception {
+    public SHPSocket(MessageType msgTypeCode, byte[] payload) throws Exception {
         this.protocolVersion = 0x01;
         this.protocolRelease = 0x01;
-        this.msgTypeCode = msgTypeCode;
+        this.msgTypeCode = msgTypeCode.getValue();
         this.payload = payload;
     }
-
 
 
 
@@ -82,7 +79,6 @@ public class SHPSocket {
     public byte[] getPayload() {
         return payload;
     }
-
     // Setters
     public void setProtocolVersion(byte protocolVersion) {
         this.protocolVersion = protocolVersion;
