@@ -1,8 +1,11 @@
-package Objects;
+package Objects.SHPSocket;
 
 /*
     This class is representative of the TCP socket that the Secure Handshake Protocol will use
 */
+
+import Objects.MessageType;
+import Objects.Payload.Payload;
 
 public class SHPSocket {
 

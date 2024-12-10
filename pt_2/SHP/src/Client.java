@@ -1,14 +1,14 @@
+import BusinessLogic.DeciferResult.DeciferResult;
 import BusinessLogic.ISHPCifer;
 import BusinessLogic.ISHPDecifer;
 import BusinessLogic.SHPCifer;
 import BusinessLogic.SHPDecifer;
 import Objects.MessageType;
-import Objects.SHPSocket;
-import Objects.SHPSocketUtils;
+import Objects.SHPSocket.SHPSocket;
+import Objects.SHPSocket.SHPSocketUtils;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 
 public class Client {
 
@@ -16,6 +16,7 @@ public class Client {
     static ISHPDecifer _decifer;
 
     public static void main(String[] args) throws Exception {
+
         _cifer = new SHPCifer();
         _decifer = new SHPDecifer();
 
@@ -58,10 +59,10 @@ public class Client {
             byte[] receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
 
-            String receivedMessage = _decifer.getPayload(utils.getMessageType(receivedEncryptedData), receivedEncryptedData);
+            DeciferResult receivedMessage = _decifer.getPayload(utils.getMessageType(receivedEncryptedData), receivedEncryptedData);
 
             // Process the received byte[] into string
-            System.out.println("Received the message: " + receivedMessage);
+            System.out.println("Received the message: " + receivedMessage.toString());
             // -------------------------------------------------------------------------------------------------------
 
 

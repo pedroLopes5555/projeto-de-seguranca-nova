@@ -1,8 +1,9 @@
-package Objects;
+package Objects.Payload;
 
 public class Payload {
 
     protected byte[] payload;
+
 
     public byte[] getByteArray() {
         return this.payload;

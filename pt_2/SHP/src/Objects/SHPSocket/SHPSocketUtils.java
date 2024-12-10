@@ -1,4 +1,6 @@
-package Objects;
+package Objects.SHPSocket;
+
+import Objects.MessageType;
 
 public class SHPSocketUtils {
 

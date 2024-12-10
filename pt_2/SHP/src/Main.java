@@ -1,10 +1,11 @@
+import BusinessLogic.DeciferResult.DeciferResult;
 import BusinessLogic.ISHPCifer;
 import BusinessLogic.ISHPDecifer;
 import BusinessLogic.SHPCifer;
 import BusinessLogic.SHPDecifer;
 import Objects.MessageType;
-import Objects.SHPSocket;
-import Objects.SHPSocketUtils;
+import Objects.SHPSocket.SHPSocket;
+import Objects.SHPSocket.SHPSocketUtils;
 
 import java.io.*;
 import java.net.*;
@@ -47,17 +48,17 @@ public class Main {
             byte[] receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
 
-            String receivedMessage = _decifer.getPayload(utils.getMessageType(receivedEncryptedData), receivedEncryptedData);
+            DeciferResult receivedMessage = _decifer.getPayload(utils.getMessageType(receivedEncryptedData), receivedEncryptedData);
 
             // Process the received byte[] into string
-            System.out.println("Received the message: " + receivedMessage);
+            System.out.println("Received the message: " + receivedMessage.toString());
 
 
 
-            //SENDING ANOTHER MEASSGE TYPE 1 JUST FOR TEST
+            //SENDING ANOTHER MEASSGE TYPE 2 JUST FOR TEST
             // -------------------------------------------------------------------------------------------------------
-            String message = "Hi, " + receivedMessage + " we are glad to comunicate with you";
-            SHPSocket shpSocket = new SHPSocket(MessageType.TYPE1, _cifer.createPayload(MessageType.TYPE1, message));
+            String message = "Hi, " + receivedMessage.toString() + " we are glad to comunicate with you";
+            SHPSocket shpSocket = new SHPSocket(MessageType.TYPE2, _cifer.createPayload(MessageType.TYPE2));
 
             // Send the byte[] to the server
             outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
