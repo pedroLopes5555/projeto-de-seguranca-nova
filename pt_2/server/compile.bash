@@ -1,3 +1,3 @@
-cd src
-javac -d ../bin *.java
+cd src/src
+javac -d ../../bin *.java
 

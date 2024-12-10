@@ -16,6 +16,7 @@ public class Main {
 
             // Send a message to the server
             String message = "Hello, Server!";
+            
             output.println(message);
             System.out.println("Sent: " + message);
 
