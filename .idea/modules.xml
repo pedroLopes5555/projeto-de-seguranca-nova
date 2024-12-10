@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/pt_1/StreamingService/StreamingService.iml" filepath="$PROJECT_DIR$/pt_1/StreamingService/StreamingService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pt_1/TestMulticastTeacher/TestMulticastTeacher.iml" filepath="$PROJECT_DIR$/pt_1/TestMulticastTeacher/TestMulticastTeacher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projeto-de-seguranca-nova.iml" filepath="$PROJECT_DIR$/projeto-de-seguranca-nova.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pt_1/pt_1.iml" filepath="$PROJECT_DIR$/pt_1/pt_1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pt_2/pt_2.iml" filepath="$PROJECT_DIR$/pt_2/pt_2.iml" />
+    </modules>
+  </component>
+</project>

@@ -9,11 +9,11 @@ public class SHPSocket {
     private byte protocolVersion;    // 8 bits
     private byte protocolRelease;    // 8 bits
     private byte msgTypeCode;        // 8 bits
-    private byte[] payload;          // Variable length
+    private Payload payload;          // Variable length
     private int HEADER_SIZE = 3;
 
     // Constructor
-    public SHPSocket(byte protocolVersion, byte protocolRelease, MessageType msgTypeCode, byte[] payload) throws Exception {
+    public SHPSocket(byte protocolVersion, byte protocolRelease, MessageType msgTypeCode, Payload payload) throws Exception {
 
         if (protocolVersion > 0x15){
             throw new Exception("protocool version max size is 4 bits");
@@ -29,7 +29,7 @@ public class SHPSocket {
     }
 
 
-    public SHPSocket(MessageType msgTypeCode, byte[] payload) throws Exception {
+    public SHPSocket(MessageType msgTypeCode, Payload payload) throws Exception {
         this.protocolVersion = 0x01;
         this.protocolRelease = 0x01;
         this.msgTypeCode = msgTypeCode.getValue();
@@ -40,16 +40,15 @@ public class SHPSocket {
 
     public byte[] getSocketContent(){
 
-        byte[] result = new byte[HEADER_SIZE + getPayload().length];
+        byte[] result = new byte[HEADER_SIZE + getPayload().getPayloadLenght()];
 
         // Copy the elements of the first array to the new array
         System.arraycopy(getHeader(), 0, result, 0, HEADER_SIZE);
 
         // Copy the elements of the second array to the new array
-        System.arraycopy(getPayload(), 0, result, HEADER_SIZE, getPayload().length);
+        System.arraycopy(getPayload().getByteArray(), 0, result, HEADER_SIZE, getPayload().getPayloadLenght());
 
         return result;
-
     }
 
     private byte[] getHeader(){
@@ -76,7 +75,7 @@ public class SHPSocket {
         return msgTypeCode;
     }
 
-    public byte[] getPayload() {
+    public Payload getPayload() {
         return payload;
     }
     // Setters
@@ -92,7 +91,7 @@ public class SHPSocket {
         this.msgTypeCode = msgTypeCode;
     }
 
-    public void setPayload(byte[] payload) {
+    public void setPayload(Payload payload) {
         this.payload = payload;
     }
 }

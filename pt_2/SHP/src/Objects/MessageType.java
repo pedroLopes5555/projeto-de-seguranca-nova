@@ -21,6 +21,15 @@ public enum MessageType {
         return value;
     }
 
+    //ai generated
+    public static MessageType fromByte(byte input) {
+        for (MessageType type : MessageType.values()) {
+            if (type.getValue() == input) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown MessageType for byte value: " + input);
+    }
 
     @Override
     public String toString() {
