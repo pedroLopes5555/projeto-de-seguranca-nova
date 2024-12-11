@@ -2,37 +2,63 @@ package BusinessLogic;
 
 import BusinessLogic.DeciferResult.DeciferResult;
 import BusinessLogic.DeciferResult.TypeOneResult;
+import BusinessLogic.DeciferResult.TypeThreeResult;
 import BusinessLogic.DeciferResult.TypeTwoResult;
 import Objects.MessageType;
 
+import javax.swing.*;
+
 public class SHPDecifer implements ISHPDecifer{
 
-    public DeciferResult getPayload(MessageType msgType, byte[] content) throws Exception {
+    public DeciferResult getPayloadType1(byte[] content) throws Exception {
+
+        if (content == null || content.length <= 3) {
+            throw new IllegalArgumentException("Content must be at least 4 bytes long");
+        }
+        if (content.length > 323) {
+            throw new Exception("Invalid size of package");
+        }
+
+        return new TypeOneResult(new String(getPayloadFromContent(content)));
+
+    }
+
+
+    public DeciferResult getPayloadType2(byte[] content) throws Exception {
+        if (content == null || content.length <= 3) {
+            throw new IllegalArgumentException("Content must be at least 4 bytes long");
+        }
+
+        if (content.length > 51) {
+            throw new Exception("Invalid size of package");
+        }
+        return new TypeTwoResult(getNonces(getPayloadFromContent(content)));
+
+    }
+
+
+    public DeciferResult getPayloadType3(byte[] content, String userId) throws Exception {
 
         if (content == null || content.length <= 3) {
             throw new IllegalArgumentException("Content must be at least 4 bytes long");
         }
 
-        byte[] payload = new byte[content.length - 3];
-        System.arraycopy(content, 3, payload, 0, payload.length);
+        return new TypeThreeResult(getPayloadFromContent(content), userId);
 
-        return switch (msgType) {
-            case TYPE1 -> {
-                if (content.length > 323) {
-                    throw new Exception("Invalid size of package");
-                }
-                yield new TypeOneResult(new String(payload));
-            }
-            case TYPE2 -> {
-                if (content.length > 51) {
-                    throw new Exception("Invalid size of package");
-                }
-                yield new TypeTwoResult(getNonces(payload));
-            }
-            default -> throw new Exception("Invalid Message Type");
-        };
+
     }
 
+
+
+
+
+
+
+
+
+
+
+    };
 
     private byte[][] getNonces (byte[] nonces){
         byte[][] result = new byte[3][16];
@@ -46,11 +72,12 @@ public class SHPDecifer implements ISHPDecifer{
     }
 
 
+    private byte[] getPayloadFromContent(byte[] content) {
+        byte[] payload = new byte[content.length - 3];
+        System.arraycopy(content, 3, payload, 0, payload.length);
 
-
-
-
-
+        return payload
+    }
 
 
 
