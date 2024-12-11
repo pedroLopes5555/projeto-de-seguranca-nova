@@ -1,7 +1,7 @@
 package BusinessLogic.DeciferResult;
 
-import Repository.IRepository;
-import Repository.Repository;
+import Repository.IServerRepository;
+import Repository.ServerRepository;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -12,11 +12,11 @@ import java.security.Key;
 public class TypeThreeResult extends  DeciferResult{
 
 
-    private IRepository _repository;
+    private IServerRepository _repository;
     private byte[] result;
 
     public TypeThreeResult(byte[] encryptedPayload, String userId) throws  Exception{
-        _repository = new Repository();
+        _repository = new ServerRepository();
         this.result = deciferPayload(encryptedPayload, userId);
     }
 

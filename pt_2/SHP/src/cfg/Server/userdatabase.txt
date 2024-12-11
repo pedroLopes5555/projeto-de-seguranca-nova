@@ -1,3 +1,2 @@
-userId: H(password): salt: KpubClient
-alice@gmail.com: SHA256(hash_of_password): random_salt: ECC_public_key
-paulinho@gmail.com:[B@1d7acb34:123:123
+#alice@gmail.com: SHA256(hash_of_password): random_salt: ECC_public_key
+paulinho@gmail.com:[B@48a242ce:123:123

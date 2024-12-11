@@ -16,26 +16,28 @@ authenticity and integrity check
 * */
 
 import Objects.User;
+import Repository.ClientRepository;
+import Repository.IClientRepository;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 public class PayloadType3 extends Payload{
 
+
+    IClientRepository _repository;
+
     public PayloadType3(User user, byte[] nonce3) throws Exception {
         this.payload = createPayload(user, nonce3);
+        _repository = new ClientRepository();
     }
-
-
 
 
     private byte[] createPayload(User user, byte[] nonce3) throws Exception {
@@ -56,7 +58,29 @@ public class PayloadType3 extends Payload{
         System.out.println("payload: " + payload);
 
         //----------------------------------
+        byte[] PBEEncryptedData = getPasswordBasedEncryptionPart(dataToEncrypt, user);
+        byte[] digitalSign = new byte[10];
 
+
+
+        return PBEEncryptedData;
+    }
+
+
+/*
+    private byte[] getSignature() throws  Exception{
+
+
+
+        //Signature signature = Signature.getInstance("SHA512withECDSA", "BC");
+        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
+        //Signature signature = Signature.getInstance("SHA224/ECDSA", "BC");
+        signature.initSign(keyPair.getPrivate(), new SecureRandom());
+        signature.update(message);
+    }
+*/
+
+    private byte[] getPasswordBasedEncryptionPart(byte[] dataToEncrypt, User user) throws Exception {
         byte[] salt = generateSalt();
         int iterationCount = 2048;
 
@@ -66,9 +90,10 @@ public class PayloadType3 extends Payload{
         byte[] hashedBytes = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
 
 
-        System.out.printf(hashedBytes.toString());
-
-        PBEKeySpec pbeSpec = new PBEKeySpec((hashedBytes.toString()).toCharArray());
+        //nao sei pq, e acho assustador, se eu colocar a hash numa variavel antes funciona,
+        // se nao colocar nao funciona kkkkkk
+        var hash = hashedBytes.toString();
+        PBEKeySpec pbeSpec = new PBEKeySpec(hash.toCharArray());
         SecretKeyFactory keyFact = SecretKeyFactory.getInstance("PBEWITHSHA256AND192BITAES-CBC-BC","BC");
         Key secretKey = keyFact.generateSecret(pbeSpec);
 
@@ -87,87 +112,17 @@ public class PayloadType3 extends Payload{
         bigInt = bigInt.add(BigInteger.ONE);
         byte[] added = bigInt.toByteArray();
         // Ensure the resulting byte array does not exceed the original size
-        byte[] finalResult = Arrays.copyOfRange(added, added.length - byteArray.length, added.length);
-
-        return finalResult;
+        return Arrays.copyOfRange(added, added.length - byteArray.length, added.length);
     }
 
 
     private byte[] generateSalt(){
         return new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, (byte)0xe9, (byte)0xe0, (byte)0xae };
-//        byte[] salt = new byte[16];
-//        SecureRandom random = new SecureRandom();
-//        random.nextBytes(salt);
-//
-//        return salt;
-    }
+        /*
+        byte[] salt = new byte[16];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(salt);
 
-
-
-}
-
-
-
-/*
-public class PBEOtherExample
-{
-    public static void main(String[]    args)
-        throws Exception
-    {
-
-	if (args.length==0) {
-	    System.err.println("Use: PBEOtherExample <password>");
-	    System.exit(-1);
-	}
-
-	Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-
-
-        byte[]          input = new byte[] {
-                            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                            0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-                            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
-        byte[]          keyBytes = new byte[] {
-                            0x73, 0x2f, 0x2d, 0x33, (byte)0xc8, 0x01, 0x73,
-                            0x2b, 0x72, 0x06, 0x75, 0x6c, (byte)0xbd, 0x44,
-                            (byte)0xf9, (byte)0xc1, (byte)0xc1, 0x03, (byte)0xdd,
-                            (byte)0xd9, 0x7c, 0x7c, (byte)0xbe, (byte)0x8e };
-        byte[]		    ivBytes = new byte[] {
-                            (byte)0xb0, 0x7b, (byte)0xf5, 0x22, (byte)0xc8,
-                            (byte)0xd6, 0x08, (byte)0xb8 };
-
-        System.out.println("plaintext  : " + Utils.toHex(input));
-
-
-        char[] password = args[0].toCharArray();
-        byte[] salt = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, (byte)0xe9, (byte)0xe0, (byte)0xae };
-        int                 iterationCount = 2048;
-        PBEKeySpec          pbeSpec = new PBEKeySpec(password);
-        SecretKeyFactory keyFact = SecretKeyFactory.getInstance("PBEWITHSHA256AND192BITAES-CBC-BC","BC");
-        Key sKey= keyFact.generateSecret(pbeSpec);
-
-        // Cifrar com esquema PBE
-
-        Cipher cEnc = Cipher.getInstance("PBEWITHSHA256AND192BITAES-CBC-BC","BC");
-        cEnc.init(Cipher.ENCRYPT_MODE, sKey, new PBEParameterSpec(salt, iterationCount));
-
-        byte[] out = cEnc.doFinal(input);
-
-        // Decifrar com esquema PBE
-        // Decifrar passando explicitamente os parametros de salt e iterador
-
-        Cipher cDec = Cipher.getInstance("PBEWITHSHA256AND192BITAES-CBC-BC","BC");
-        cDec.init(Cipher.DECRYPT_MODE, sKey, new PBEParameterSpec(salt, iterationCount));
-
-        System.out.println("-------------------------------------------------");
-        System.out.println("gen key    : " + Utils.toHex(sKey.getEncoded()));
-        System.out.println("gen iv     : " + Utils.toHex(cDec.getIV()));
-        System.out.println("key format : " + sKey.getFormat());
-        System.out.println("key alg    : " + sKey.getAlgorithm());
-        System.out.println("ciphertext : " + Utils.toHex(out));
-        System.out.println("plaintext  : " + Utils.toHex(cDec.doFinal(out)));
-        System.out.println("-------------------------------------------------");
+        return salt;*/
     }
 }
-
- */

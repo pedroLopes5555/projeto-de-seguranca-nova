@@ -9,10 +9,10 @@ import Objects.SHPSocket.SHPSocketUtils;
 
 import java.io.*;
 import java.net.*;
-import java.security.Security;
+import java.security.*;
+import java.security.spec.ECGenParameterSpec;
 
 public class Main {
-
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
 

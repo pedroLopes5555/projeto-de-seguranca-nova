@@ -4,11 +4,29 @@ public class User {
 
     private String userId;
     private String password;
+    private byte[] randomSalt;
+    private  byte[] ECCPublicKey;
 
 
     public User(String userId, String password) {
         this.userId = userId;
         this.password = password;
+    }
+
+    public User(String userId, String password, byte[] randomSalt, byte[] ECCPublicKey) {
+        this.userId = userId;
+        this.password = password;
+        this.randomSalt = randomSalt;
+        this.ECCPublicKey = ECCPublicKey;
+    }
+
+
+    public byte[] getRandomSalt() {
+        return randomSalt;
+    }
+
+    public byte[] getECCPublicKey() {
+        return ECCPublicKey;
     }
 
     public User(String userId) {

@@ -2,7 +2,7 @@ package Repository;
 
 import Objects.User;
 
-public interface IRepository {
+public interface IServerRepository {
 
     public User getUserById(String userId);
 }

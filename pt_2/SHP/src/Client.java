@@ -22,7 +22,6 @@ public class Client {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         User user = new User("paulinho@gmail.com", "passwordsecretadopaulinho");
 
-
         _cifer = new SHPCifer();
         _decifer = new SHPDecifer();
 
