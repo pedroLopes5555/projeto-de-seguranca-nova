@@ -8,6 +8,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import java.security.Key;
+import java.security.Signature;
 
 public class TypeThreeResult extends  DeciferResult{
 
@@ -37,7 +38,7 @@ public class TypeThreeResult extends  DeciferResult{
 
     private byte[] deciferPayload(byte[] encriptedPayload, String userId) throws Exception{
 
-
+        /*
         byte[] test = new byte[10];
 
         String password = _repository.getUserById(userId).getPassword();
@@ -54,7 +55,17 @@ public class TypeThreeResult extends  DeciferResult{
         cDec.init(Cipher.DECRYPT_MODE, sKey, new PBEParameterSpec(salt, iterationCount));
 
 
-        return cDec.doFinal(encriptedPayload);
+        return cDec.doFinal(encriptedPayload);*/
+
+
+        var publicKey = _repository.getUserPublicKey(userId);
+
+        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
+        signature.initVerify(publicKey);
+        boolean isVerified = signature.verify(encriptedPayload);
+        System.out.println("Signature Verified: " + isVerified);
+
+        return new byte[3];
     }
 
 }

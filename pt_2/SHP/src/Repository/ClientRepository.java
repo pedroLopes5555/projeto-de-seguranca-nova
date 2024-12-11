@@ -2,24 +2,28 @@ package Repository;
 
 import Objects.User;
 import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECNamedCurveSpec;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPrivateKeySpec;
 
 public class ClientRepository  implements  IClientRepository{
 
 
     private static final String PATH_TO_KEY = "src/cfg/Client/ClientECCKeyPair.sec";
-    PublicKey publickKey;
-    PrivateKey privateKey;
-    String curve;
+    private PublicKey publickKey;
+    private PrivateKey privateKey;
+    private  String curve;
 
 
     public ClientRepository() throws Exception{
@@ -28,88 +32,35 @@ public class ClientRepository  implements  IClientRepository{
 
 
 
-    public byte[] getPrivateKey(){
-        var a = new byte[10];
-
-        return a;
+    public PrivateKey getPrivateKey(){
+        return privateKey;
     }
-
-
-
 
 
     private void loadKeys() throws  Exception{
-        byte[] privateKeyBytes;
 
-        String privateKeyString = "";
-        String publicKeyString = "";
-
-        File file = new File(PATH_TO_KEY);
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String st;
-        String[] lines = new String[3];
-        int i = 0;
-        while ((st = br.readLine()) != null){
-            lines[i] = st;
-            i++;
-        }
+        String curve = "secp256k1";
+        String privateKeyHex = "56:b1:25:8b:7d:59:00:b8:dc:df:4d:37:f4:51:47:87:21:e2:a5:95";
 
 
-        for (String line : lines) {
-            if (line.startsWith("Curve:")) {
-                this.curve = line.split(":")[1];
-            }
+        // Reconstruct private key
+        ECNamedCurveParameterSpec spec = org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec(curve);
+        ECParameterSpec params = new ECNamedCurveSpec(
+                spec.getName(),
+                spec.getCurve(),
+                spec.getG(),
+                spec.getN(),
+                spec.getH(),
+                spec.getSeed());
 
-            else if (line.startsWith("PrivateKey:")) {
-                privateKeyString = line.split(":")[1]
-                        .replace("[", "")
-                        .replace("]", "")
-                        .replace(":", "");
-
-            }
-
-            else if (line.startsWith("PublicKey:")) {
-                publicKeyString = line.split(":")[1];
-            }
-        }
-
-
-        if(privateKeyString != "" && publicKeyString != ""){
-            privateKeyBytes = hexStringToByteArray(privateKeyString);
-            ECPrivateKey privateKey = generatePrivateKeyFromBytes(privateKeyBytes);
-
-        }
-
+        ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(
+                new java.math.BigInteger(privateKeyHex, 16),
+                params);
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
+        privateKey = keyFactory.generatePrivate(privateKeySpec);
 
     }
 
 
-    private ECPrivateKey generatePrivateKeyFromBytes(byte[] privateKeyBytes) throws Exception {
-        // EC key pair generator uses a byte array for the private key
-        ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(new java.math.BigInteger(1, privateKeyBytes), new ECGenParameterSpec(this.curve));
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        return (ECPrivateKey) keyFactory.generatePrivate(privateKeySpec);
-
-    }
-
-
-    // Helper method to convert hex string to byte array
-    private static byte[] hexStringToByteArray(String s) {
-        String[] hexStringArray = s.split(":");
-        byte[] byteArray = new byte[hexStringArray.length];
-        for (int i = 0; i < hexStringArray.length; i++) {
-            byteArray[i] = (byte) Integer.parseInt(hexStringArray[i], 16);
-        }
-        return byteArray;
-    }
-
-    // Helper method to convert byte array to hex string
-    private static String bytesToHex(byte[] byteArray) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : byteArray) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
 
 }

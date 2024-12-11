@@ -35,8 +35,8 @@ public class PayloadType3 extends Payload{
     IClientRepository _repository;
 
     public PayloadType3(User user, byte[] nonce3) throws Exception {
-        this.payload = createPayload(user, nonce3);
         _repository = new ClientRepository();
+        this.payload = createPayload(user, nonce3);
     }
 
 
@@ -59,26 +59,21 @@ public class PayloadType3 extends Payload{
 
         //----------------------------------
         byte[] PBEEncryptedData = getPasswordBasedEncryptionPart(dataToEncrypt, user);
-        byte[] digitalSign = new byte[10];
+        byte[] digitalSign = getSigBytes(PBEEncryptedData);
 
-
-
-        return PBEEncryptedData;
+        return digitalSign;
     }
 
 
-/*
-    private byte[] getSignature() throws  Exception{
 
-
-
-        //Signature signature = Signature.getInstance("SHA512withECDSA", "BC");
+    private byte[] getSigBytes(byte[] contentToSigh) throws  Exception{
+        var privateKey = _repository.getPrivateKey();
         Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
-        //Signature signature = Signature.getInstance("SHA224/ECDSA", "BC");
-        signature.initSign(keyPair.getPrivate(), new SecureRandom());
-        signature.update(message);
+        signature.initSign(privateKey, new SecureRandom());
+        signature.update(contentToSigh);
+        return signature.sign();
     }
-*/
+
 
     private byte[] getPasswordBasedEncryptionPart(byte[] dataToEncrypt, User user) throws Exception {
         byte[] salt = generateSalt();

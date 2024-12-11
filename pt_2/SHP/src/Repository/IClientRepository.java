@@ -1,6 +1,8 @@
 package Repository;
 
+import java.security.PrivateKey;
+
 public interface IClientRepository {
 
-    public byte[] getPrivateKey();
+    public PrivateKey getPrivateKey();
 }

@@ -15,7 +15,6 @@ import java.security.spec.ECGenParameterSpec;
 public class Main {
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
-
     public static void main(String[] args) {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
