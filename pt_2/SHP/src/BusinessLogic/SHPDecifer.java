@@ -8,7 +8,7 @@ import Objects.MessageType;
 
 import javax.swing.*;
 
-public class SHPDecifer implements ISHPDecifer{
+public class SHPDecifer implements ISHPDecifer {
 
     public DeciferResult getPayloadType1(byte[] content) throws Exception {
 
@@ -54,20 +54,14 @@ public class SHPDecifer implements ISHPDecifer{
 
 
 
-
-
-
-
-    };
-
-    private byte[][] getNonces (byte[] nonces){
+    private byte[][] getNonces(byte[] nonces) {
         byte[][] result = new byte[3][16];
         int resultPos = 0;
 
-            for (int i = 0; i < 48; i+=16){
-                System.arraycopy(nonces, i, result[resultPos], 0 , result[resultPos].length);
-                resultPos ++;
-            }
+        for (int i = 0; i < 48; i += 16) {
+            System.arraycopy(nonces, i, result[resultPos], 0, result[resultPos].length);
+            resultPos++;
+        }
         return result;
     }
 
@@ -76,18 +70,14 @@ public class SHPDecifer implements ISHPDecifer{
         byte[] payload = new byte[content.length - 3];
         System.arraycopy(content, 3, payload, 0, payload.length);
 
-        return payload
+        return payload;
     }
 
 
-
-
-
-
-
-
-
-
-
-
 }
+
+
+
+
+
+

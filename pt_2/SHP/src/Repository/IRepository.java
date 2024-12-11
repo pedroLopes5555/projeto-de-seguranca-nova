@@ -1,4 +1,8 @@
 package Repository;
 
-public class IRepository {
+import Objects.User;
+
+public interface IRepository {
+
+    public User getUserById(String userId);
 }

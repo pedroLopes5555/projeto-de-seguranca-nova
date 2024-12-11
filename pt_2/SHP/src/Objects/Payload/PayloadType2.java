@@ -6,13 +6,10 @@ public class PayloadType2 extends Payload{
 
 
     public PayloadType2() {
-        this.payload = getSecureRandoms();
+        this.payload = createSecureRandoms();
     }
 
-
-
-
-    private byte[] getSecureRandoms(){
+    private byte[] createSecureRandoms(){
         byte[] nonces = new byte[48];
 
         for (int i = 0; i < 48; i+=16){

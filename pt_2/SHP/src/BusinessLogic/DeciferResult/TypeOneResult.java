@@ -5,12 +5,9 @@ public class TypeOneResult extends DeciferResult{
     private String result;
 
 
-    public String getResult() {
+    @Override
+    public String getValue(){
         return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
     }
 
     public TypeOneResult(String result) {

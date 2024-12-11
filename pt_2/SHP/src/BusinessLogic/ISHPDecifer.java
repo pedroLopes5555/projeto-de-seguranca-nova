@@ -1,10 +1,11 @@
 package BusinessLogic;
 
 import BusinessLogic.DeciferResult.DeciferResult;
-import Objects.MessageType;
 
 public interface ISHPDecifer {
 
-    public DeciferResult getPayload(MessageType msgType, byte[] payload) throws Exception;
+    public DeciferResult getPayloadType1(byte[] payload) throws Exception;
+    public DeciferResult getPayloadType2(byte[] payload) throws Exception;
+    public DeciferResult getPayloadType3(byte[] payload, String userId) throws Exception;
 
 }

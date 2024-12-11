@@ -11,8 +11,15 @@ public class TypeTwoResult extends DeciferResult {
         this.result = result;
     }
 
+
     public byte[][] getResult() {
         return result;
+    }
+
+
+    @Override
+    public byte[] getNonce3(){
+        return result[2];
     }
 
     public void setResult(byte[][] result) {
