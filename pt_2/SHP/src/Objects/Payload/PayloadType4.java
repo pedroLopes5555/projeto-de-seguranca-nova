@@ -40,9 +40,29 @@ public class PayloadType4 extends Payload{
                 "nonce4plus1:" + nonce4plus1 +
                 "nonce5:" + nonce5 +
                 "cryptoconfig:" + cryptoconfig;
+
+        byte[] dataToEncrypt = payload.getBytes();
         //----------------------------------
 
-        return Encrypt(payload.getBytes());
+        byte[] encryptedData = Encrypt(payload.getBytes());
+        byte[] digitalSign = getSigBytes(dataToEncrypt);
+
+        byte[] encSize = intToBytes(encryptedData.length);
+        byte[] signSize = intToBytes(digitalSign.length);
+
+        byte[] hash = new byte[PBEEncryptedData.length + digitalSign.length];
+        System.arraycopy(PBEEncryptedData, 0, hash,0, PBEEncryptedData.length);
+        System.arraycopy(digitalSign, 0, hash,PBEEncryptedData.length, digitalSign.length);
+
+        byte[] result = new byte[PBEEncryptedData.length + digitalSign.length + hash.length + 4];
+        System.arraycopy(pbeSize, 0, result,0, 2);
+        System.arraycopy(signSize, 0, result,2, 2);
+        System.arraycopy(PBEEncryptedData, 0, result,4, PBEEncryptedData.length);
+        System.arraycopy(digitalSign, 0, result,PBEEncryptedData.length+4, digitalSign.length);
+        System.arraycopy(hash, 0, result,digitalSign.length+PBEEncryptedData.length+4, hash.length);
+
+
+        return null;
     }
 
 
@@ -57,27 +77,15 @@ public class PayloadType4 extends Payload{
         return cipher.doFinal(content);
     }
 
+    private byte[] getSigBytes(byte[] message) throws  Exception{
+        PrivateKey privKey = _repository.getPrivateKey();
+        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
+        signature.initSign(privKey, new SecureRandom());
+        signature.update(message);
+        byte[] sigBytes = signature.sign();
 
-//
-//
-//
-//    private byte[] getSigBytes(byte[] message) throws  Exception{
-//        PublicKey pubKey = _repository.getUserById(this.user.getUserId()).getECCPublicKey();
-//
-//        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
-//        signature.initSign(privKey, new SecureRandom());
-//        signature.update(message);
-//        byte[] sigBytes = signature.sign();
-//
-//        return sigBytes;
-//    }
-
-
-
-
-
-
-
+        return sigBytes;
+    }
 
     private byte[] generateSalt(){
         return new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, (byte)0xe9, (byte)0xe0, (byte)0xae };
@@ -96,5 +104,12 @@ public class PayloadType4 extends Payload{
         byte[] added = bigInt.toByteArray();
         // Ensure the resulting byte array does not exceed the original size
         return Arrays.copyOfRange(added, added.length - byteArray.length, added.length);
+    }
+
+    private static byte[] intToBytes(int value) {
+        byte[] result = new byte[2];
+        result[0] = (byte) (value >> 8);
+        result[1] = (byte) (value);
+        return result;
     }
 }

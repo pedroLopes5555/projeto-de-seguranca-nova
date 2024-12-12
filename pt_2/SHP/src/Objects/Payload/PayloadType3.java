@@ -61,8 +61,23 @@ public class PayloadType3 extends Payload{
         byte[] PBEEncryptedData = getPasswordBasedEncryptionPart(dataToEncrypt, user);
         byte[] digitalSign = getSigBytes(dataToEncrypt);
 
+        byte[] pbeSize = intToBytes(PBEEncryptedData.length);
+        byte[] signSize = intToBytes(digitalSign.length);
 
-        return PBEEncryptedData;
+        byte[] hash = new byte[PBEEncryptedData.length + digitalSign.length];
+        System.arraycopy(PBEEncryptedData, 0, hash,0, PBEEncryptedData.length);
+        System.arraycopy(digitalSign, 0, hash,PBEEncryptedData.length, digitalSign.length);
+
+        byte[] result = new byte[PBEEncryptedData.length + digitalSign.length + hash.length + 4];
+        System.arraycopy(pbeSize, 0, result,0, 2);
+        System.arraycopy(signSize, 0, result,2, 2);
+        System.arraycopy(PBEEncryptedData, 0, result,4, PBEEncryptedData.length);
+        System.arraycopy(digitalSign, 0, result,PBEEncryptedData.length+4, digitalSign.length);
+        System.arraycopy(hash, 0, result,digitalSign.length+PBEEncryptedData.length+4, hash.length);
+
+        //MISSING HASH PART
+
+        return result;
     }
 
 
@@ -121,5 +136,12 @@ public class PayloadType3 extends Payload{
         random.nextBytes(salt);
 
         return salt;*/
+    }
+
+    private static byte[] intToBytes(int value) {
+        byte[] result = new byte[2];
+        result[0] = (byte) (value >> 8);
+        result[1] = (byte) (value);
+        return result;
     }
 }

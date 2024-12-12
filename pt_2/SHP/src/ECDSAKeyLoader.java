@@ -17,8 +17,8 @@ public class ECDSAKeyLoader {
 
         // Values provided
         String curve = "secp256k1";
-        String privateKeyEncodedString = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgWukXndmurjN4ZpVIvab+HlmX7ItXjalxZfWWpbw3ZQSgBwYFK4EEAAqhRANCAASaAP7a7u4n4yOTeH161Qb1jQW0vZ7LDGSjirqLjMCOa7509k+TMSpRUDnHcUATmQpXXbRjq1qQQn/TbS+Mu6sh";
-        String publicKeyEncodedString = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEmgD+2u7uJ+Mjk3h9etUG9Y0FtL2eywxko4q6i4zAjmu+dPZPkzEqUVA5x3FAE5kKV120Y6takEJ/020vjLurIQ==";
+        String privateKeyEncodedString = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgU+8FhtL5XAW1LEY0Od+qap57vdVE++HGkWWPBYKzSuygBwYFK4EEAAqhRANCAASUi9hz8lCSJDrvelwzkVFXsL+1ghdhYSp1PC9SHXCt+aDtr3I/i9GmpSwxwwxgodRvCbqpG8PZHog9bbmsT/6K";
+        String publicKeyEncodedString = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAElIvYc/JQkiQ673pcM5FRV7C/tYIXYWEqdTwvUh1wrfmg7a9yP4vRpqUsMcMMYKHUbwm6qRvD2R6IPW25rE/+ig==";
 
 
 

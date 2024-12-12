@@ -30,7 +30,7 @@ public class CreateKey
         //Signature signature = Signature.getInstance("SHA512withECDSA", "BC");
         Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
         //Signature signature = Signature.getInstance("SHA224/ECDSA", "BC");
-        signature.initSign(keyPair.getPrivate(), new SecureRandom());
+        signature.initSign(keyPair.getPrivate());
         signature.update(message);
         byte[]  sigBytes = signature.sign();
         System.out.println("ECDSA signature bytes: " + Utils3.toHex(sigBytes));

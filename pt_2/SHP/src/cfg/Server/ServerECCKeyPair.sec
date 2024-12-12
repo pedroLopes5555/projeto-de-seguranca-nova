@@ -1,15 +1,3 @@
-Curve: EllipticCurve // ex., secp256
-PrivateKey: xxxxxxxxx….xxxx
-PublicKey: xxxxxxxxx …. xxxxx
-
-
-
-chave privada
-EC Private Key [56:b1:25:8b:7d:59:00:b8:dc:df:4d:37:f4:51:47:87:21:e2:a5:95]
-            X: 411fe86af0b63286d887b0da86fc5dc89a7f269b9174bcdce0b3084163f05860
-            Y: b631559c2053df1cb1c0e885227e439c046287b028ed2265e590a732d5ebbca8
-
-Chave Publica
-EC Public Key [56:b1:25:8b:7d:59:00:b8:dc:df:4d:37:f4:51:47:87:21:e2:a5:95]
-            X: 411fe86af0b63286d887b0da86fc5dc89a7f269b9174bcdce0b3084163f05860
-            Y: b631559c2053df1cb1c0e885227e439c046287b028ed2265e590a732d5ebbca8
+Curve:secp256k1
+PrivateKey:MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQg7dydFpy50aJfMSaFYgCWs3tEqayrrzLPhb4yLqvWWdOgBwYFK4EEAAqhRANCAATjbDlk1gsOoEbgJs4vnNT2y/TVX1xQd75xAFzAaND3e0f3lvKKSCHy4SfibI/g+YymBjgsCuwQ2VctgmJklPHA
+PublicKey:MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE42w5ZNYLDqBG4CbOL5zU9sv01V9cUHe+cQBcwGjQ93tH95byikgh8uEn4myP4PmMpgY4LArsENlXLYJiZJTxwA==

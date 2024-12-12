@@ -55,7 +55,7 @@ public class TypeThreeResult extends  DeciferResult{
 
     public TypeThreeResult(byte[] encryptedPayload, String userId) throws  Exception{
         _repository = new ServerRepository();
-        this.result = deciferPayload(encryptedPayload, userId);
+        deciferPayload(encryptedPayload, userId);
     }
 
 
@@ -70,10 +70,45 @@ public class TypeThreeResult extends  DeciferResult{
                 '}';
     }
 
-    private byte[] deciferPayload(byte[] encriptedPayload, String userId) throws Exception{
+    private void deciferPayload(byte[] encriptedPayload, String userId) throws Exception{
 
-        byte[] test = new byte[10];
         String password = _repository.getUserById(userId).getPassword();
+        PublicKey publicKey = _repository.getUserById(userId).getECCPublicKey();
+
+        byte[] pbeSize = new byte[2];
+        System.arraycopy(encriptedPayload,0, pbeSize,0,2);
+
+        byte[] signSize = new byte[2];
+        System.arraycopy(encriptedPayload,2, signSize,0,2);
+
+
+        byte[] pbeContent = new byte[bytesToInt(pbeSize)];
+        System.arraycopy(encriptedPayload,4,pbeContent,0,bytesToInt(pbeSize));
+        String deciferedContent = deciferPbeContent(pbeContent, password);
+
+
+        byte[] signContent = new byte[bytesToInt(signSize)];
+        System.arraycopy(encriptedPayload,4+bytesToInt(pbeSize),signContent,0,bytesToInt(signSize));
+        checkSignature(deciferedContent, signContent, publicKey);
+
+        // MISSING HASH
+
+
+
+
+    }
+
+    private static int bytesToInt(byte[] bytes) {
+        if (bytes == null || bytes.length != 2) {
+            throw new IllegalArgumentException("Byte array must be exactly 2 bytes long");
+        }
+        return ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
+    }
+
+    private String deciferPbeContent(byte[] pbeContent, String password) throws Exception{
+        if(password == null){
+            throw new Exception("invalid user id");
+        }
 
         byte[] salt = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, (byte)0xe9, (byte)0xe0, (byte)0xae };
         int iterationCount = 2048;
@@ -85,10 +120,8 @@ public class TypeThreeResult extends  DeciferResult{
         Cipher cDec = Cipher.getInstance("PBEWITHSHA256AND192BITAES-CBC-BC","BC");
         cDec.init(Cipher.DECRYPT_MODE, sKey, new PBEParameterSpec(salt, iterationCount));
 
+        String deciferedText =  new String(cDec.doFinal(pbeContent));
 
-        String deciferedText =  new String(cDec.doFinal(encriptedPayload));
-
-        //request:streaming;userid:paulinho@gmail.com;nonce3:M��k�Z`�Z#�i�;nonce4:}`C_��;udpport:3000
         String[] content = deciferedText.split(";");
 
         for(String element: content){
@@ -110,21 +143,19 @@ public class TypeThreeResult extends  DeciferResult{
             }
         }
 
-
-//
-//        PublicKey publicKey = _repository.getUserById(userId).getECCPublicKey();
-//
-//        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
-//
-//
-//        signature.initVerify(publicKey);
-//        signature.update("message".getBytes());
-//        boolean isVerified = signature.verify(encriptedPayload);
-//
-//        System.out.println("Signature Verified: " + isVerified);
-
-
-        return result;
+        return deciferedText;
     }
 
+    private void checkSignature(String deciferedData, byte[] signContent, PublicKey publicKey) throws Exception{
+
+        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
+
+        signature.initVerify(publicKey);
+        signature.update(deciferedData.getBytes());
+        boolean isVerified = signature.verify(signContent);
+
+        if(!isVerified){
+            throw new Exception("Signature not verified");
+        }
+    }
 }
