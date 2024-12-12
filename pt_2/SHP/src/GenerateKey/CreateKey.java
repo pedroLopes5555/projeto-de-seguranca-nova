@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.*;
 import java.util.Arrays;
+import java.util.Base64;
 
 /**
  * Geracao e verificacao de assinaturas digitais
@@ -37,23 +38,48 @@ public class CreateKey
 
 
 
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
 
         /*Create the PrivKey from the encode*/
+        System.out.println("privada:");
         System.out.println(Arrays.toString(privateKey.getEncoded()));
+
+        var privKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+        System.out.println("para base 64: " + privKeyBase64);
+
+        byte[] decodeprivFromBase64 = Base64.getDecoder().decode(privKeyBase64);
+        System.out.println("de 64 para encoded:");
+        System.out.println(Arrays.toString(decodeprivFromBase64));
+
         var priveKeyEncodaded = privateKey.getEncoded();
         KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
         EncodedKeySpec KeySpec = new PKCS8EncodedKeySpec(priveKeyEncodaded);
         var privKey = keyFactory.generatePrivate(KeySpec);
-        
+        System.out.println("\n");
+        System.out.println("\n");
+
+
         /*Create PubKey from encode*/
+        System.out.println("publica:");
         System.out.println(Arrays.toString(publicKey.getEncoded()));
+
         var pubKeyEncoded = publicKey.getEncoded();
+        var pubKeyBase64 = Base64.getEncoder().encodeToString(pubKeyEncoded);
+        System.out.println("para base 64 :" + pubKeyBase64);
+        byte[] decodePubFromBase64 = Base64.getDecoder().decode(pubKeyBase64);
+        System.out.println("de 64 para encoded de novo");
+        System.out.println(Arrays.toString(decodePubFromBase64));
+
         KeyFactory keyFactory_2 = KeyFactory.getInstance("ECDSA", "BC");
-        EncodedKeySpec KeySpec_2 = new X509EncodedKeySpec(pubKeyEncoded);
+        EncodedKeySpec KeySpec_2 = new X509EncodedKeySpec(decodePubFromBase64);
         var pubKey = keyFactory.generatePublic(KeySpec_2);
         System.out.println(Arrays.toString(pubKey.getEncoded()));
-
-
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
 
 
         signature.initVerify(pubKey);
