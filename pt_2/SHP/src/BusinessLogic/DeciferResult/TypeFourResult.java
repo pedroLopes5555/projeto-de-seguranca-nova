@@ -14,6 +14,8 @@ import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TypeFourResult extends DeciferResult{
 
@@ -31,16 +33,24 @@ public class TypeFourResult extends DeciferResult{
     private String requestConfirmation;
     private byte[] nonce4plus1;
     private byte[] nonce5;
+    private Map<String, String> cryptoConfigMap = new HashMap<>();
+
+
+
 
     public byte[] getCiferedContent() {
         return ciferedContent;
     }
 
 
+    @Override
+    public Map<String, String> getCryptoConfigMap() {
+        return cryptoConfigMap;
+    }
 
     @Override
-    public String getCryptoConfig() {
-        return cryptoConfig;
+    public byte[] getNonce5() {
+        return nonce5;
     }
 
     public String getRequestConfirmation() {
@@ -51,9 +61,6 @@ public class TypeFourResult extends DeciferResult{
         return nonce4plus1;
     }
 
-    public byte[] getNonce5() {
-        return nonce5;
-    }
 
     public TypeFourResult(byte[] content) throws Exception {
         _repository = new ClientRepository();
@@ -111,21 +118,44 @@ public class TypeFourResult extends DeciferResult{
         String[] content = new String(plaintext).split(";");
 
 
-        for(String element: content){
+        String[] pairs = new String(plaintext).split(";");
 
-            if(element.startsWith("request")){
-                this.requestConfirmation = element.split(":")[1];
+
+
+        for (String pair : pairs) {
+
+            if(pair.startsWith("request")){
+                this.requestConfirmation = pair.split(":")[1];
             }
-            if(element.startsWith("nonce4plus1")){
-                this.nonce4plus1 = element.split(":")[1].getBytes();
+            else if(pair.startsWith("nonce4plus1")){
+                this.nonce4plus1 = pair.split(":")[1].getBytes();
             }
-            if(element.startsWith("nonce5")){
-                this.nonce5 = element.split(":")[1].getBytes();
+            else if(pair.startsWith("nonce5")){
+                this.nonce5 = pair.split(":")[1].getBytes();
             }
+
             else {
-                this.cryptoConfig = element;
+                // Split each pair into key and value
+                String[] keyValue = pair.split(":", 2); // Limit to 2 splits to handle cases with ':' in the value
+                if (keyValue.length == 2) {
+                    String key = keyValue[0].trim();
+                    String value = keyValue[1].trim();
+                    cryptoConfigMap.put(key, value);
+                }
             }
+
+
         }
+
+
+        // Print the parsed key-value pairs
+        for (Map.Entry<String, String> entry : cryptoConfigMap.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+
+        // Example: Access specific values
+        String confidentiality = cryptoConfigMap.get("IV");
+        System.out.println("IV: " + confidentiality);
 
         return new String(plaintext);
     }

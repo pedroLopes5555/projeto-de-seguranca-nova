@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -206,18 +207,15 @@ public class GetEncryptedDatagram {
 
 
 
-	public static byte[] getEncryptedDatagramByCFGString(byte[] ptextbytes, int sequenceNumer, String cfg) throws Exception {
 
-		// Load data
-		ConfigReader configReader = new ConfigReader();
-		var config = configReader.getConfigFromString(cfg);
-		//var keys = configReader.getkeys();
+	public static byte[] getEncryptedDatagram(byte[] ptextbytes, int sequenceNumer, Map<String, String> config) throws Exception {
+
 		String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
-		
+
 		// --------------------- Check if it is GCM mode
 		int index = ciphersuite.indexOf("/");
 		String ciphersuiteMode = "";
-			
+
 		if (index != -1) {
 			ciphersuiteMode = ciphersuite.split("/")[1];
 		}
@@ -234,14 +232,14 @@ public class GetEncryptedDatagram {
 
 		for (int i = 0; i < ivHex.length(); i += 2) {
 			ivBytes[i / 2] = (byte) ((Character.digit(ivHex.charAt(i), 16) << 4)
-								+ Character.digit(ivHex.charAt(i+1), 16));
+					+ Character.digit(ivHex.charAt(i+1), 16));
 		}
 		// --------------------- Get ivBytes from cfg
 
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 		GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, ivBytes);
 
-		SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()), 
+		SecretKey key = KeyRing.readSecretKey(config.get(ConfigKey.SYMMETRIC_KEY.getValue()),
 				config.get(ConfigKey.CONFIDENTIALITY.getValue()).substring(0,3));
 
 		//--------------------------------------------------------
@@ -250,7 +248,7 @@ public class GetEncryptedDatagram {
 
 
 
-		
+
 		Cipher cipher = Cipher.getInstance(ciphersuite);
 		if(ciphersuiteMode.toUpperCase().equals("GCM")){
 			cipher.init(Cipher.ENCRYPT_MODE, key, gcmParameterSpec);
@@ -258,7 +256,7 @@ public class GetEncryptedDatagram {
 			cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
 		}
 
-		
+
 		// Combine sequence number and plaintext
 		byte[] sequenceNumberArray = Utils.intToByteArray(sequenceNumer);
 		byte[] sequenceNumberAndPtext = Utils.combineArrays(sequenceNumberArray, ptextbytes);
@@ -272,52 +270,54 @@ public class GetEncryptedDatagram {
 		byte[] digest;
 		byte[] datagram;
 
-			switch (integrity) {
-					case "H" ->		{
-									//use H
-									//create the hash algotrithm isntance
-									MessageDigest hash = MessageDigest.getInstance(config.get(ConfigKey.H.getValue()));
-									hash.update(ciphertext);
-									digest = hash.digest();
-									//digest is the cihertext hashed
+		switch (integrity) {
+			case "H" ->		{
+				//use H
+				//create the hash algotrithm isntance
+				MessageDigest hash = MessageDigest.getInstance(config.get(ConfigKey.H.getValue()));
+				hash.update(ciphertext);
+				digest = hash.digest();
+				//digest is the cihertext hashed
 
-									datagram = createUDPDatagram(ciphertext, digest);
-								
-									return datagram;
-							}
-					case "HMAC" ->	{
-									// Use HMAC-based integrity
-									Mac hMac = Mac.getInstance(config.get(ConfigKey.MAC.getValue()));
+				datagram = createUDPDatagram(ciphertext, digest);
 
-									SecretKeySpec hMacKey = new SecretKeySpec(
-													Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue())),
-													config.get(ConfigKey.MAC.getValue())
-									);
-
-									
-									//inicialize hashe
-									hMac.init(hMacKey);
-									hMac.update(ciphertext); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
-									digest = hMac.doFinal();
-									int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 5; // 256 bits / 8 bits per byte = 32 bytes
-									//create datagram and send
-									datagram = createUDPDatagram(ciphertext, digest);
-
-
-									System.out.println("seqeunce number: " + Arrays.toString(sequenceNumberArray));
-
-									return datagram;
-									//Socket s = new Socket(desthost, destport);
-									//sendUDPDatagram(datagram, s);
-								}
-					default -> {
-							Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
-							System.exit(0);
-					}
+				return datagram;
 			}
+			case "HMAC" ->	{
+				// Use HMAC-based integrity
+				Mac hMac = Mac.getInstance(config.get(ConfigKey.MAC.getValue()));
 
-			return null;
+				SecretKeySpec hMacKey = new SecretKeySpec(
+						Utils.hexStringToByteArray(config.get(ConfigKey.MACKEY.getValue())),
+						config.get(ConfigKey.MAC.getValue())
+				);
+
+
+				//inicialize hashe
+				hMac.init(hMacKey);
+				hMac.update(ciphertext); //get the plaintext ashe (in this case we use plain text, in the case above we hash the cypher)
+				digest = hMac.doFinal();
+				int digestSize = Integer.parseInt(config.get(ConfigKey.MACKEY_SIZE.getValue())) / 5; // 256 bits / 8 bits per byte = 32 bytes
+				//create datagram and send
+				datagram = createUDPDatagram(ciphertext, digest);
+
+
+				System.out.println("seqeunce number: " + Arrays.toString(sequenceNumberArray));
+
+				return datagram;
+				//Socket s = new Socket(desthost, destport);
+				//sendUDPDatagram(datagram, s);
+			}
+			default -> {
+				Utils.printInRed("Not Valid Integrity Field ->  INTEGRITY:" + integrity);
+				System.exit(0);
+			}
+		}
+
+		return null;
 	}
+
+
 
 
 	

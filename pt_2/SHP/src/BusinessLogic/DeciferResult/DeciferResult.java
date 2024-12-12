@@ -1,5 +1,7 @@
 package BusinessLogic.DeciferResult;
 
+import java.util.Map;
+
 public class DeciferResult {
 
 
@@ -18,7 +20,11 @@ public class DeciferResult {
         return null;
     }
 
-    public String getCryptoConfig(){
+    public byte[] getNonce5() {
+        return null;
+    }
+
+    public Map<String, String> getCryptoConfigMap(){
         return null;
     }
 }

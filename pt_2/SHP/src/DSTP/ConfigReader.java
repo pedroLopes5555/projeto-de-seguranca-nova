@@ -61,45 +61,6 @@ public class ConfigReader {
 
 
 
-
-    public Map<String, String> getConfigFromString(String cfg){
-
-        Map<String, String> resultMap = new HashMap<>();
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        // Split the input string into lines
-        String[] lines = cfg.split(";");
-        System.out.println(Utils.stringInRed(cfg));
-
-        
-        // Process each line
-        for (String line : lines) {
-            System.out.println(Utils.stringInRed(line));
-            // Split the line into key and value at the first colon
-            String[] keyValue = line.split(":", 2); // Limit to 2 parts to handle values with colons
-            if (keyValue.length == 2) {
-                resultMap.put(keyValue[0].trim(), keyValue[1].trim());
-            }
-        }
-
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-        System.out.println("\n");
-
-        
-        return resultMap;
-
-    }
-
     public  List<String> getkeys() {
         List<String> stringList = new ArrayList<String>();
         

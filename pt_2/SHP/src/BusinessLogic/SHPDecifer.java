@@ -55,6 +55,15 @@ public class SHPDecifer implements ISHPDecifer {
         return new TypeFourResult(getPayloadFromContent(content));
     }
 
+    @Override
+    public DeciferResult getPayloadType5(byte[] content) throws Exception {
+        if (content == null || content.length <= 3) {
+            throw new IllegalArgumentException("Content must be at least 4 bytes long");
+        }
+
+        return new TypeFiveResult(getPayloadFromContent(content));
+    }
+
 
     private byte[][] getNonces(byte[] nonces) {
         byte[][] result = new byte[3][16];

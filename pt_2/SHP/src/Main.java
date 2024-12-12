@@ -78,6 +78,9 @@ public class Main {
             System.out.println("Received type 3");
             System.out.println(type3Result.toString());
 
+
+
+
             //return the Message type 4
             shpSocket = new SHPSocket(MessageType.TYPE4, _cifer.createPayloadType4(userId, "streaming",type3Result.getNonce4()));
             outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
@@ -92,7 +95,7 @@ public class Main {
             byteArrayLength = inputStream.readInt();
             receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
-            System.out.println("Recived message type 5 (ok)" + receivedEncryptedData.toString());
+            var type5Result = _decifer.getPayloadType5(receivedEncryptedData);
 
         } catch (IOException e) {
             e.printStackTrace();

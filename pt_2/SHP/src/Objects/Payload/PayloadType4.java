@@ -13,6 +13,8 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PayloadType4 extends Payload{
 
@@ -42,7 +44,37 @@ public class PayloadType4 extends Payload{
                 ";" + _repository.getCriptoConfig();
 
 
-        System.out.println(_repository.getCriptoConfig());
+        System.out.println(payload);
+
+
+        String[] pairs = payload.split(";");
+
+        // Create a map to store the parsed key-value pairs
+        Map<String, String> payloadMap = new HashMap<>();
+
+        for (String pair : pairs) {
+            // Split each pair into key and value
+            String[] keyValue = pair.split(":", 2); // Limit to 2 splits to handle cases with ':' in the value
+            if (keyValue.length == 2) {
+                String key = keyValue[0].trim();
+                String value = keyValue[1].trim();
+                payloadMap.put(key, value);
+            }
+        }
+
+        // Print the parsed key-value pairs
+        for (Map.Entry<String, String> entry : payloadMap.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+
+        // Example: Access specific values
+        String confidentiality = payloadMap.get("CONFIDENTIALITY");
+        System.out.println("CONFIDENTIALITY: " + confidentiality);
+
+
+
+
+
 
         byte[] dataToEncrypt = payload.getBytes();
         System.out.println("payload: " + payload);

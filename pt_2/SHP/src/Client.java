@@ -80,7 +80,7 @@ public class Client {
             // Send the byte[] to the server
             byte[] test = { 0x01, 0x02, 0x03};
 
-            shpSocket = new SHPSocket(MessageType.TYPE3, _cifer.createPayloadType3(user, receivedMessage.getNonce3()));
+            shpSocket = new SHPSocket(MessageType.TYPE5, _cifer.createPayloadType3(user, receivedMessage.getNonce3()));
             outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
             outputStream.write(shpSocket.getSocketContent());  // Send the byte array
             System.out.println("Sent this message type 3 to server: " + shpSocket.getSocketContent());
@@ -94,28 +94,19 @@ public class Client {
             receivedEncryptedData = new byte[byteArrayLength1];
             inputStream.readFully(receivedEncryptedData);
             receivedMessage = _decifer.getPayloadType4(receivedEncryptedData);
-
-
-            ConfigReader configInstance = new ConfigReader();
-            System.out.println("receivedMessage.getCryptoConfig()" + receivedMessage.getCryptoConfig());
-            var configMap = configInstance.getConfigFromString(receivedMessage.getCryptoConfig());
-
-
-            System.out.println(configMap.toString());
-
-            System.out.println("Received the message: " + receivedMessage.toString());
+            var map = receivedMessage.getCryptoConfigMap();
 
 
             Thread.sleep(1000);
 
 
-            //Sending the type 5 Message:
-            // Send the byte[] to the server
-            byte[] test2 = { 0x05, 0x06};
-            outputStream.writeInt(test.length);  // Send the length of the byte array first
-            outputStream.write(test);  // Send the byte array
-            System.out.println("Sent this message type 5 to server: " + new String(test));
 
+
+            //Sending the type 5 Message:
+            shpSocket = new SHPSocket(MessageType.TYPE5, _cifer.createPayloadType5(receivedMessage.getNonce5() , map));
+            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
+            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
+            System.out.println("Sent this message type 5 to server: " + shpSocket.getSocketContent());
 
 
 

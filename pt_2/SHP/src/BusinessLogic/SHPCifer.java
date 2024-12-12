@@ -4,6 +4,7 @@ import Objects.MessageType;
 import Objects.Payload.*;
 import Objects.User;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class SHPCifer implements ISHPCifer {
@@ -44,8 +45,8 @@ public class SHPCifer implements ISHPCifer {
     }
 
 
-    public Payload createPayloadType5(MessageType msgType) throws Exception {
-        return null;
+    public Payload createPayloadType5(byte[] nonce5, Map<String, String> cryptoCfg) throws Exception {
+        return new PayloadType5(nonce5, cryptoCfg);
     }
 
 
