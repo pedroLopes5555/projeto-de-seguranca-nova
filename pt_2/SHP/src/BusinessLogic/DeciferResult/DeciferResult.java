@@ -17,4 +17,8 @@ public class DeciferResult {
     public byte[] getNonce4() {
         return null;
     }
+
+    public String getCryptoConfig(){
+        return null;
+    }
 }

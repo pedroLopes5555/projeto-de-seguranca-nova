@@ -20,15 +20,15 @@ public class PayloadType4 extends Payload{
     private User user;
 
 
-    public PayloadType4(String userId, String request, byte[] nonce4, String cryptoconfig) throws Exception {
+    public PayloadType4(String userId, String request, byte[] nonce4) throws Exception {
         _repository = new ServerRepository();
         this.user = _repository.getUserById(userId);
-        this.payload = createPayload(request, nonce4, cryptoconfig);
+        this.payload = createPayload(request, nonce4);
 
     }
 
 
-    private byte[] createPayload(String request, byte[] nonce4, String cryptoconfig) throws Exception{
+    private byte[] createPayload(String request, byte[] nonce4) throws Exception{
         /*Ekpubclient (request-confirmation, Nonce4+1, Nonce5, crypto config),
         DigitalSig (request-confirmation, userID, Nonce4+1, Nonce5 , crypto config),
         HMACkmac (X)*/
@@ -39,7 +39,10 @@ public class PayloadType4 extends Payload{
         String payload = "request:streaming" +
                 ";nonce4plus1:" + nonce4plus1 +
                 ";nonce5:" + nonce5 +
-                ";cryptoconfig:" + cryptoconfig;
+                ";" + _repository.getCriptoConfig();
+
+
+        System.out.println(_repository.getCriptoConfig());
 
         byte[] dataToEncrypt = payload.getBytes();
         System.out.println("payload: " + payload);

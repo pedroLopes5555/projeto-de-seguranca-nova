@@ -9,5 +9,6 @@ public interface IServerRepository {
 
     public User getUserById(String userId);
     public PrivateKey getPrivateKey();
+    public String getCriptoConfig() throws Exception;
 
 }

@@ -19,6 +19,7 @@ import java.util.List;
 public class ServerRepository implements IServerRepository {
 
     private String PATH_TO_USER_DATABASE = "src/cfg/Server/userdatabase.txt";
+    private String PATH_TO_CONFIG = "src/cfg/Server/ciphersuite.conf";
     private List<User> Users;
     private PrivateKey privateKey;
     private  String curve;
@@ -37,6 +38,28 @@ public class ServerRepository implements IServerRepository {
     public PrivateKey getPrivateKey() {
         return privateKey;
     }
+
+
+
+
+    public String getCriptoConfig() throws Exception{
+        String result = "";
+        File file = new File(PATH_TO_CONFIG);
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String st;
+
+        while ((st = br.readLine()) != null){
+            result += st + ";";
+        }
+
+        return result;
+    }
+
+
+
+
+
+
 
     public User getUserById(String userId) {
         for (User item : Users) {

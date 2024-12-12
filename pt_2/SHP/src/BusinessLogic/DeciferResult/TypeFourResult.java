@@ -1,5 +1,6 @@
 package BusinessLogic.DeciferResult;
 
+import BusinessLogic.Utils;
 import Objects.User;
 import Repository.ClientRepository;
 import Repository.IClientRepository;
@@ -31,7 +32,28 @@ public class TypeFourResult extends DeciferResult{
     private byte[] nonce4plus1;
     private byte[] nonce5;
 
+    public byte[] getCiferedContent() {
+        return ciferedContent;
+    }
 
+
+
+    @Override
+    public String getCryptoConfig() {
+        return cryptoConfig;
+    }
+
+    public String getRequestConfirmation() {
+        return requestConfirmation;
+    }
+
+    public byte[] getNonce4plus1() {
+        return nonce4plus1;
+    }
+
+    public byte[] getNonce5() {
+        return nonce5;
+    }
 
     public TypeFourResult(byte[] content) throws Exception {
         _repository = new ClientRepository();
@@ -84,7 +106,7 @@ public class TypeFourResult extends DeciferResult{
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] plaintext = cipher.doFinal(cifContent);
 
-        System.out.println("plain : " + new String(plaintext));
+        //System.out.println("plain : " + Utils.stringInRed(new String(plaintext)));
 
         String[] content = new String(plaintext).split(";");
 
@@ -100,8 +122,8 @@ public class TypeFourResult extends DeciferResult{
             if(element.startsWith("nonce5")){
                 this.nonce5 = element.split(":")[1].getBytes();
             }
-            if(element.startsWith("cryptoconfig")){
-                this.cryptoConfig = element.split(":")[1];
+            else {
+                this.cryptoConfig = element;
             }
         }
 

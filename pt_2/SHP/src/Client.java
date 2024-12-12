@@ -3,19 +3,24 @@ import BusinessLogic.ISHPCifer;
 import BusinessLogic.ISHPDecifer;
 import BusinessLogic.SHPCifer;
 import BusinessLogic.SHPDecifer;
+import DSTP.*;
 import Objects.MessageType;
 import Objects.SHPSocket.SHPSocket;
 import Objects.SHPSocket.SHPSocketUtils;
 import Objects.User;
 
+
 import java.io.*;
 import java.net.*;
+import java.security.Provider;
 import java.security.Security;
+import java.util.Scanner;
 
 public class Client {
 
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
+
 
     public static void main(String[] args) throws Exception {
 
@@ -41,6 +46,7 @@ public class Client {
             inputStream = new DataInputStream(socket.getInputStream());
             outputStream = new DataOutputStream(socket.getOutputStream());
 
+            Thread.sleep(1000);
 
 
             // Sending message type 1 into the server.
@@ -51,6 +57,9 @@ public class Client {
             outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
             outputStream.write(shpSocket.getSocketContent());  // Send the byte array
             System.out.println("Sent this message to server: " + user.getUserId());
+
+
+            Thread.sleep(1000);
 
 
 
@@ -78,13 +87,27 @@ public class Client {
 
 
 
+
             //Reciving the message type4
             // -------------------------------------------------------------------------------------------------------
-            byteArrayLength = inputStream.readInt();
-            receivedEncryptedData = new byte[byteArrayLength];
+            int byteArrayLength1 = inputStream.readInt();
+            receivedEncryptedData = new byte[byteArrayLength1];
             inputStream.readFully(receivedEncryptedData);
             receivedMessage = _decifer.getPayloadType4(receivedEncryptedData);
+
+
+            ConfigReader configInstance = new ConfigReader();
+            System.out.println("receivedMessage.getCryptoConfig()" + receivedMessage.getCryptoConfig());
+            var configMap = configInstance.getConfigFromString(receivedMessage.getCryptoConfig());
+
+
+            System.out.println(configMap.toString());
+
             System.out.println("Received the message: " + receivedMessage.toString());
+
+
+            Thread.sleep(1000);
+
 
             //Sending the type 5 Message:
             // Send the byte[] to the server
@@ -96,6 +119,7 @@ public class Client {
 
 
 
+            Thread.sleep(1000);
 
 
         } catch (IOException e) {

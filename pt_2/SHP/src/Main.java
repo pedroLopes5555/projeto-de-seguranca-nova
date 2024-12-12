@@ -11,11 +11,15 @@ import java.io.*;
 import java.net.*;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
+import java.util.Arrays;
 
 public class Main {
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
+
+
     public static void main(String[] args) {
+
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
         _cifer = new SHPCifer();
@@ -42,6 +46,7 @@ public class Main {
             inputStream = new DataInputStream(clientSocket.getInputStream());
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
+            Thread.sleep(1000);
 
             // Recive the message type1
             int byteArrayLength = inputStream.readInt();
@@ -53,6 +58,7 @@ public class Main {
             String userId = receivedMessage.getValue();
             System.out.println("Received the message type 1: " + receivedMessage.toString());
             // -------------------------------------------------------------------------------------------------------
+            Thread.sleep(1000);
 
 
             //return the Message type 2
@@ -61,6 +67,7 @@ public class Main {
             outputStream.write(shpSocket.getSocketContent());  // Send the byte array
             System.out.println("Returned Message type 2");
             // -------------------------------------------------------------------------------------------------------
+            Thread.sleep(1000);
 
 
             //Recive The message type 3
@@ -71,17 +78,14 @@ public class Main {
             System.out.println("Received type 3");
             System.out.println(type3Result.toString());
 
-
-            Thread.sleep(1000);
-
-
             //return the Message type 4
-            shpSocket = new SHPSocket(MessageType.TYPE4, _cifer.createPayloadType4(userId, "streaming",type3Result.getNonce4(), "testeCryptoconmfig"));
+            shpSocket = new SHPSocket(MessageType.TYPE4, _cifer.createPayloadType4(userId, "streaming",type3Result.getNonce4()));
             outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
             outputStream.write(shpSocket.getSocketContent());  // Send the byte array
             System.out.println("Returned Message type 4");
             // -------------------------------------------------------------------------------------------------------
 
+            Thread.sleep(1000);
 
 
             //Recive The message type 5
@@ -89,7 +93,6 @@ public class Main {
             receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
             System.out.println("Recived message type 5 (ok)" + receivedEncryptedData.toString());
-
 
         } catch (IOException e) {
             e.printStackTrace();

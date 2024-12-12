@@ -17,7 +17,7 @@ public class DecriptDatagram {
   public static EncriptedDatagramResoult GetDecriptedDatagram(byte[] UDPDatagram, String CfgFilePathString) throws Exception {
 		
 		// Load data
-		IConfigReader configReader = new ConfigReader(CfgFilePathString);
+		ConfigReader configReader = new ConfigReader(CfgFilePathString);
 		var config = configReader.getConfig();
 		//var keys = configReader.getkeys();
 

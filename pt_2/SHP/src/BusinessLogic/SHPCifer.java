@@ -38,9 +38,9 @@ public class SHPCifer implements ISHPCifer {
     }
 
 
-    public Payload createPayloadType4(String userId, String request, byte[] nonce4, String cryptoconfig) throws Exception {
+    public Payload createPayloadType4(String userId, String request, byte[] nonce4) throws Exception {
         
-        return new PayloadType4(userId, request, nonce4, cryptoconfig);
+        return new PayloadType4(userId, request, nonce4);
     }
 
 

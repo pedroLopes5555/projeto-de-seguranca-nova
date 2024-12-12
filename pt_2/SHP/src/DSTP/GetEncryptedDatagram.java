@@ -90,7 +90,7 @@ public class GetEncryptedDatagram {
 	public static byte[] getEncryptedDatagram(byte[] ptextbytes, int sequenceNumer, String CfgFilePathString) throws Exception {
 
 		// Load data
-		IConfigReader configReader = new ConfigReader(CfgFilePathString);
+		ConfigReader configReader = new ConfigReader(CfgFilePathString);
 		var config = configReader.getConfig();
 		//var keys = configReader.getkeys();
 
@@ -209,7 +209,7 @@ public class GetEncryptedDatagram {
 	public static byte[] getEncryptedDatagramByCFGString(byte[] ptextbytes, int sequenceNumer, String cfg) throws Exception {
 
 		// Load data
-		IConfigReader configReader = new ConfigReader();
+		ConfigReader configReader = new ConfigReader();
 		var config = configReader.getConfigFromString(cfg);
 		//var keys = configReader.getkeys();
 		String ciphersuite = config.get(ConfigKey.CONFIDENTIALITY.getValue());  // Retrieve the ciphersuite
