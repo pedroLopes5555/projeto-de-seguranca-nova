@@ -1,27 +1,25 @@
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
-import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.*;
 import java.util.Base64;
 
-
 public class ECDSAKeyLoader {
     public static void main(String[] args) throws Exception {
         // Add the BouncyCastle provider
+        Security.addProvider(new BouncyCastleProvider());
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
         // Values provided
         String curve = "secp256k1";
-        String privateKeyHex = "0d:8e:7e:18:9a:2e:af:10:a2:6a:fd:f7:3c:9b:93:bc:1f:0d:fa:e5";
-        String pubKeyXHex = "21865c4bb14e425c54cbedd90ff9411dcb76b90cfc5bd9b16609f1b44164dbb9";
-        String pubKeyYHex = "a57c4ddc0f101ea39a03401879f85d10437fb28537f1dca624bdb78792d018a5";
+        String privateKeyHex = "56b1258b7d5900b8dcdf4d37f451478721e2a595";
+        String pubKeyXHex = "dee5e293897264d73f6970e2d4e6ce817f6e12debb729accc091a1b5d5eea181";
+        String pubKeyYHex = "31ed1700f9a70eeeda4ae106b7db37d68f5d5c4c8c2edf1f5644a74bce3d6483";
 
 
-        //privateKeyHex = privateKeyHex.replaceAll(":", "");
 
         // Reconstruct private key
         ECNamedCurveParameterSpec spec = org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec(curve);
@@ -33,8 +31,7 @@ public class ECDSAKeyLoader {
                 spec.getH(),
                 spec.getSeed());
 
-        ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(
-                new java.math.BigInteger(privateKeyHex, 16),
+        ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(new java.math.BigInteger(privateKeyHex, 16),
                 params);
         KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
         PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
@@ -52,7 +49,6 @@ public class ECDSAKeyLoader {
 
         ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(javaPoint, params);
         PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
-
 
         // Message to sign
         byte[] message = "This is a test message".getBytes();
