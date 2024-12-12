@@ -32,6 +32,8 @@ public class PayloadType4 extends Payload{
     }
 
 
+
+
     private byte[] createPayload(String request, byte[] nonce4) throws Exception{
         /*Ekpubclient (request-confirmation, Nonce4+1, Nonce5, crypto config),
         DigitalSig (request-confirmation, userID, Nonce4+1, Nonce5 , crypto config),
@@ -46,7 +48,7 @@ public class PayloadType4 extends Payload{
                 ";" + _repository.getCriptoConfig();
 
 
-        System.out.println(payload);
+        //System.out.println(payload);
 
 
         String[] pairs = payload.split(";");
@@ -64,6 +66,7 @@ public class PayloadType4 extends Payload{
             }
         }
 
+        /*
         // Print the parsed key-value pairs
         for (Map.Entry<String, String> entry : payloadMap.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
@@ -74,12 +77,14 @@ public class PayloadType4 extends Payload{
         System.out.println("CONFIDENTIALITY: " + confidentiality);
 
 
+         */
+
 
 
 
 
         byte[] dataToEncrypt = payload.getBytes();
-        System.out.println("payload: " + payload);
+        //System.out.println("payload: " + payload);
         //----------------------------------
 
         byte[] encryptedData = Encrypt(payload.getBytes());

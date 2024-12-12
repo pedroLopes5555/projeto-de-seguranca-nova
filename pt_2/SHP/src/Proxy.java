@@ -29,7 +29,6 @@ public class Proxy {
     public static void main(String[] args) throws Exception {
 
         // Validate the number of arguments
-        System.out.println(args.length);
         if (args.length != 7) {
             System.out.println("Usage: java Proxy <username> <password> <server> <tcp_port> <movie> <udp_port> <player_port>");
             return;
@@ -66,8 +65,10 @@ public class Proxy {
         try {
             // Connect to the server on localhost and port 5000
             socket = new Socket(server, tcpPort);
-            System.out.println("Connected to server.");
-            System.out.println(" ----------------- ");
+            System.out.println("");
+            System.out.println("Successfully connected the user " + username + " connected to server.");
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
 
             // Get the input and output streams from the socket
             inputStream = new DataInputStream(socket.getInputStream());
@@ -76,66 +77,79 @@ public class Proxy {
             Thread.sleep(1000);
 
 
-            // Sending message type 1 into the server.
-            // Creating the socket with the userId
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Sending a Message Type 1 into the Server.");
 
             SHPSocket shpSocket = new SHPSocket(MessageType.TYPE1, _cifer.createPayloadType1(user.getUserId()));
-            // Send the byte[] to the server
-            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
-            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
-            System.out.println("Sent this message to server: " + user.getUserId());
+            outputStream.writeInt(shpSocket.getSocketContent().length);
+            outputStream.write(shpSocket.getSocketContent());
+
+            System.out.println("Sent the message: " + user.getUserId());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
 
 
             Thread.sleep(1000);
 
 
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Receiving a Message Type 2 from the Server.");
 
-            //Reciving the message type2
-            // -------------------------------------------------------------------------------------------------------
             int byteArrayLength = inputStream.readInt();
             byte[] receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
-            //decifer
             DeciferResult receivedMessage = _decifer.getPayloadType2(receivedEncryptedData);
+
             System.out.println("Received the message: " + receivedMessage.toString());
-            // -------------------------------------------------------------------------------------------------------
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
+
 
             Thread.sleep(1000);
 
 
-            //Sending the type 3 Message:
-            // Send the byte[] to the server
-            byte[] test = { 0x01, 0x02, 0x03};
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Sending a Message Type 3 into the Server.");
 
-            //olha, vou receber nesta porta
             shpSocket = new SHPSocket(MessageType.TYPE5, _cifer.createPayloadType3(user, receivedMessage.getNonce3(), udpPort, movie));
-            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
-            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
-            System.out.println("Sent this message type 3 to server: " + shpSocket.getSocketContent());
+            outputStream.writeInt(shpSocket.getSocketContent().length);
+            outputStream.write(shpSocket.getSocketContent());
+
+            System.out.println("Sent the message: " + shpSocket.getSocketContent());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
 
 
+            Thread.sleep(1000);
 
 
-            //Reciving the message type4
-            // -------------------------------------------------------------------------------------------------------
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Receiving a Message Type 4 from the Server.");
+
             int byteArrayLength1 = inputStream.readInt();
             receivedEncryptedData = new byte[byteArrayLength1];
             inputStream.readFully(receivedEncryptedData);
             receivedMessage = _decifer.getPayloadType4(receivedEncryptedData);
             map = receivedMessage.getCryptoConfigMap();
 
+            System.out.println("Received the message: " + map);
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
+
 
             Thread.sleep(1000);
 
 
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Sending a Message Type 5 into the Server.");
 
-
-            //Sending the type 5 Message:
             shpSocket = new SHPSocket(MessageType.TYPE5, _cifer.createPayloadType5(receivedMessage.getNonce5() , map));
-            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
-            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
-            System.out.println("Sent this message type 5 to server: " + shpSocket.getSocketContent());
+            outputStream.writeInt(shpSocket.getSocketContent().length);
+            outputStream.write(shpSocket.getSocketContent());
 
+            System.out.println("Sent the message: " + shpSocket.getSocketContent());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
 
 
             Thread.sleep(1000);

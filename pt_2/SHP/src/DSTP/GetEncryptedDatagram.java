@@ -302,7 +302,7 @@ public class GetEncryptedDatagram {
 				datagram = createUDPDatagram(ciphertext, digest);
 
 
-				System.out.println("seqeunce number: " + Arrays.toString(sequenceNumberArray));
+				//System.out.println("seqeunce number: " + Arrays.toString(sequenceNumberArray));
 
 				return datagram;
 				//Socket s = new Socket(desthost, destport);

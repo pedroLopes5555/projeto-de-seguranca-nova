@@ -139,6 +139,7 @@ public class TypeFourResult extends DeciferResult{
         }
 
 
+        /*
         // Print the parsed key-value pairs
         for (Map.Entry<String, String> entry : cryptoConfigMap.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
@@ -147,6 +148,8 @@ public class TypeFourResult extends DeciferResult{
         // Example: Access specific values
         String confidentiality = cryptoConfigMap.get("IV");
         System.out.println("IV: " + confidentiality);
+
+         */
 
         return new String(plaintext);
     }

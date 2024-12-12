@@ -56,7 +56,6 @@ public class PayloadType3 extends Payload{
                 ";udpport:" + udpPort;
 
         byte[] dataToEncrypt = payload.getBytes();
-        System.out.println("payload: " + payload);
 
         //----------------------------------
         byte[] PBEEncryptedData = getPasswordBasedEncryptionPart(dataToEncrypt, user);
@@ -101,7 +100,6 @@ public class PayloadType3 extends Payload{
 
 
         byte[] hashedBytes = user.getHasehdPassword();
-        System.out.println(hashedBytes.toString());
 
 
         //nao sei pq, e acho assustador, se eu colocar a hash numa variavel antes funciona,

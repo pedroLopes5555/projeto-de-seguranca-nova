@@ -38,7 +38,7 @@ public class PayloadType5 extends Payload{
 
         System.arraycopy(message, 0, data, 0, message.length);
         System.arraycopy(nonce5plus1, 0, data, message.length, nonce5plus1.length);
-        System.out.println("o client vai mandar : " + new String(data));
+        //System.out.println("o client vai mandar : " + new String(data));
 
         return GetEncryptedDatagram.getEncryptedDatagram(data, 1, cryptoCfg );
     }

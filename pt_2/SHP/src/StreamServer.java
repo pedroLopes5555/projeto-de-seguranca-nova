@@ -43,16 +43,18 @@ public class StreamServer {
 
         String clientIp = "";
         try {
+            System.out.println("");
             // Create a ServerSocket on port 5000
             serverSocket = new ServerSocket(5000);
             System.out.println("Server started, waiting for a client to connect... -> port: " + 5000);
-            // Accept incoming client connection
-            clientSocket = serverSocket.accept();
-            System.out.println("Client connected.");
-            System.out.println(" ----------------- ");
+            System.out.printf("");
 
+            clientSocket = serverSocket.accept();
             clientIp = clientSocket.getInetAddress().getHostAddress();
+
             System.out.println("Client connected from IP: " + clientIp);
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
 
 
 
@@ -62,54 +64,72 @@ public class StreamServer {
 
             Thread.sleep(1000);
 
-            // Recive the message type1
+
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Receiving a Message Type 1 from the Client.");
+
             int byteArrayLength = inputStream.readInt();
             byte[] receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
-            //decifer the message
             DeciferResult receivedMessage = _decifer.getPayloadType1(receivedEncryptedData);
-            // Process the received byte[] into string
             String userId = receivedMessage.getValue();
-            System.out.println("Received the message type 1: " + receivedMessage.toString());
-            // -------------------------------------------------------------------------------------------------------
+
+            System.out.println("Received the message: " + receivedMessage.toString());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
+
+
             Thread.sleep(1000);
 
 
-            //return the Message type 2
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Sending a Message Type 2 into the Client.");
+
             SHPSocket shpSocket = new SHPSocket(MessageType.TYPE2, _cifer.createPayloadType2());
-            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
-            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
-            System.out.println("Returned Message type 2");
-            // -------------------------------------------------------------------------------------------------------
+            outputStream.writeInt(shpSocket.getSocketContent().length);
+            outputStream.write(shpSocket.getSocketContent());
+
+            System.out.println("Sent the message: " + shpSocket.getSocketContent());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
+
+
             Thread.sleep(1000);
 
 
-            //Recive The message type 3
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Receiving a Message Type 3 from the Client.");
+
             byteArrayLength = inputStream.readInt();
             receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
             var type3Result = _decifer.getPayloadType3(receivedEncryptedData, userId);
-            System.out.println("Received type 3");
-            System.out.println(type3Result.toString());
-
-
             udpConnection.setRequestedMovie(type3Result.getRequest());
             udpConnection.setPort(type3Result.getUdpPort());
 
+            System.out.println("Received the message: " + type3Result.toString());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
 
-
-
-            //return the Message type 4
-            shpSocket = new SHPSocket(MessageType.TYPE4, _cifer.createPayloadType4(userId, "streaming",type3Result.getNonce4()));
-            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
-            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
-            System.out.println("Returned Message type 4");
-            // -------------------------------------------------------------------------------------------------------
 
             Thread.sleep(1000);
 
 
-            //Recive The message type 5
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("Sending a Message Type 4 into the Client.");
+
+            shpSocket = new SHPSocket(MessageType.TYPE4, _cifer.createPayloadType4(userId, "streaming",type3Result.getNonce4()));
+            outputStream.writeInt(shpSocket.getSocketContent().length);
+            outputStream.write(shpSocket.getSocketContent());
+
+            System.out.println("Sent the message: " + shpSocket.getSocketContent());
+            System.out.println("--------------------------------------------------------------");
+            System.out.println("");
+
+
+            Thread.sleep(1000);
+
+
             byteArrayLength = inputStream.readInt();
             receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
