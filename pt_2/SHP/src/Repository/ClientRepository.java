@@ -19,7 +19,7 @@ public class ClientRepository  implements  IClientRepository{
 
 
     private static final String PATH_TO_KEY = "src/cfg/Client/ClientECCKeyPair.sec";
-    private static final String PATH_TO_SERVER_KEY = "src/cfg/Client/ServerECCPubkey.txt";
+    private static final String PATH_TO_SERVER_KEY = "src/cfg/Client/ServerECCPubKey.txt";
     private PublicKey publicKey;
     private PrivateKey privateKey;
     private  String curve;
@@ -95,7 +95,7 @@ public class ClientRepository  implements  IClientRepository{
 
         }
 
-        file = new File(PATH_TO_KEY);
+        file = new File(PATH_TO_SERVER_KEY);
         br = new BufferedReader(new FileReader(file));
 
         while ((st = br.readLine()) != null){
