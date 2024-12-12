@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="DSTP">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../DSTP.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
