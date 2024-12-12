@@ -46,12 +46,12 @@ public class CreateKey
         System.out.println("privada:");
         System.out.println(Arrays.toString(privateKey.getEncoded()));
 
-        var privKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+        String privKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
         System.out.println("para base 64: " + privKeyBase64);
 
         byte[] decodeprivFromBase64 = Base64.getDecoder().decode(privKeyBase64);
         System.out.println("de 64 para encoded:");
-        System.out.println(Arrays.toString(decodeprivFromBase64));
+        System.out.println(decodeprivFromBase64);
 
         var priveKeyEncodaded = privateKey.getEncoded();
         KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
