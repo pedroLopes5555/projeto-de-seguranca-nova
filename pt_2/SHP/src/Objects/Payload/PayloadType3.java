@@ -97,8 +97,8 @@ public class PayloadType3 extends Payload{
         byte[] salt = generateSalt();
         int iterationCount = 2048;
 
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hashedBytes = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
+
+        byte[] hashedBytes = user.getHasehdPassword();
         System.out.println(hashedBytes.toString());
 
 

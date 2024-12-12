@@ -91,18 +91,11 @@ public class TypeThreeResult extends  DeciferResult{
         System.arraycopy(encriptedPayload,4+bytesToInt(pbeSize),signContent,0,bytesToInt(signSize));
         checkSignature(deciferedContent, signContent, publicKey);
 
-        // MISSING HASH
+        //HASH MISSING
 
 
 
 
-    }
-
-    private static int bytesToInt(byte[] bytes) {
-        if (bytes == null || bytes.length != 2) {
-            throw new IllegalArgumentException("Byte array must be exactly 2 bytes long");
-        }
-        return ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
     }
 
     private String deciferPbeContent(byte[] pbeContent, String password) throws Exception{
@@ -157,5 +150,12 @@ public class TypeThreeResult extends  DeciferResult{
         if(!isVerified){
             throw new Exception("Signature not verified");
         }
+    }
+
+    private static int bytesToInt(byte[] bytes) {
+        if (bytes == null || bytes.length != 2) {
+            throw new IllegalArgumentException("Byte array must be exactly 2 bytes long");
+        }
+        return ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
     }
 }

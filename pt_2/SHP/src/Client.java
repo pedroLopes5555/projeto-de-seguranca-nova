@@ -83,7 +83,7 @@ public class Client {
             byteArrayLength = inputStream.readInt();
             receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
-            receivedMessage = _decifer.getPayloadType4(receivedEncryptedData, user.getUserId());
+            receivedMessage = _decifer.getPayloadType4(receivedEncryptedData);
             System.out.println("Received the message: " + receivedMessage.toString());
 
             //Sending the type 5 Message:

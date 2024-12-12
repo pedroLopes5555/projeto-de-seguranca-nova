@@ -36,12 +36,13 @@ public class PayloadType4 extends Payload{
         //Payload: ------------------------
         String nonce4plus1 = new String(addOne(nonce4));
         String nonce5 = new String(generateSalt());
-        String payload = "request:streaming;" +
-                "nonce4plus1:" + nonce4plus1 +
-                "nonce5:" + nonce5 +
-                "cryptoconfig:" + cryptoconfig;
+        String payload = "request:streaming" +
+                ";nonce4plus1:" + nonce4plus1 +
+                ";nonce5:" + nonce5 +
+                ";cryptoconfig:" + cryptoconfig;
 
         byte[] dataToEncrypt = payload.getBytes();
+        System.out.println("payload: " + payload);
         //----------------------------------
 
         byte[] encryptedData = Encrypt(payload.getBytes());
@@ -50,19 +51,20 @@ public class PayloadType4 extends Payload{
         byte[] encSize = intToBytes(encryptedData.length);
         byte[] signSize = intToBytes(digitalSign.length);
 
-        byte[] hash = new byte[PBEEncryptedData.length + digitalSign.length];
-        System.arraycopy(PBEEncryptedData, 0, hash,0, PBEEncryptedData.length);
-        System.arraycopy(digitalSign, 0, hash,PBEEncryptedData.length, digitalSign.length);
+        byte[] hash = new byte[encryptedData.length + digitalSign.length];
+        System.arraycopy(encryptedData, 0, hash,0, encryptedData.length);
+        System.arraycopy(digitalSign, 0, hash,encryptedData.length, digitalSign.length);
 
-        byte[] result = new byte[PBEEncryptedData.length + digitalSign.length + hash.length + 4];
-        System.arraycopy(pbeSize, 0, result,0, 2);
+        byte[] result = new byte[encryptedData.length + digitalSign.length + hash.length + 4];
+        System.arraycopy(encSize, 0, result,0, 2);
         System.arraycopy(signSize, 0, result,2, 2);
-        System.arraycopy(PBEEncryptedData, 0, result,4, PBEEncryptedData.length);
-        System.arraycopy(digitalSign, 0, result,PBEEncryptedData.length+4, digitalSign.length);
-        System.arraycopy(hash, 0, result,digitalSign.length+PBEEncryptedData.length+4, hash.length);
+        System.arraycopy(encryptedData, 0, result,4, encryptedData.length);
+        System.arraycopy(digitalSign, 0, result,encryptedData.length+4, digitalSign.length);
+        System.arraycopy(hash, 0, result,digitalSign.length+encryptedData.length+4, hash.length);
 
+        //MISSING HASH
 
-        return null;
+        return result;
     }
 
 
