@@ -4,10 +4,13 @@ import Repository.IServerRepository;
 import Repository.ServerRepository;
 
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.util.Arrays;
@@ -96,11 +99,7 @@ public class TypeThreeResult extends  DeciferResult{
         System.arraycopy(encriptedPayload,4+bytesToInt(pbeSize),signContent,0,bytesToInt(signSize));
         checkSignature(deciferedContent, signContent, publicKey);
 
-        //HASH MISSING
-
-
-
-
+        // missing HASH verification
     }
 
     private String deciferPbeContent(byte[] pbeContent, String password) throws Exception{

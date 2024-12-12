@@ -29,6 +29,7 @@ public class Proxy {
     public static void main(String[] args) throws Exception {
 
         // Validate the number of arguments
+        System.out.println(args.length);
         if (args.length != 7) {
             System.out.println("Usage: java Proxy <username> <password> <server> <tcp_port> <movie> <udp_port> <player_port>");
             return;

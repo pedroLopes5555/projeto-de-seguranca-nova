@@ -21,9 +21,11 @@ import Repository.IClientRepository;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi;
 
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -67,14 +69,15 @@ public class PayloadType3 extends Payload{
         System.arraycopy(PBEEncryptedData, 0, hash,0, PBEEncryptedData.length);
         System.arraycopy(digitalSign, 0, hash,PBEEncryptedData.length, digitalSign.length);
 
-        byte[] result = new byte[PBEEncryptedData.length + digitalSign.length + hash.length + 4];
+        String password = user.getPassword();
+        byte[] hmac = generateHMAC(hash, password);
+
+        byte[] result = new byte[PBEEncryptedData.length + digitalSign.length + hmac.length + 4];
         System.arraycopy(pbeSize, 0, result,0, 2);
         System.arraycopy(signSize, 0, result,2, 2);
         System.arraycopy(PBEEncryptedData, 0, result,4, PBEEncryptedData.length);
         System.arraycopy(digitalSign, 0, result,PBEEncryptedData.length+4, digitalSign.length);
-        System.arraycopy(hash, 0, result,digitalSign.length+PBEEncryptedData.length+4, hash.length);
-
-        //MISSING HASH PART
+        System.arraycopy(hmac, 0, result,digitalSign.length+PBEEncryptedData.length+4, hmac.length);
 
         return result;
     }
@@ -142,5 +145,18 @@ public class PayloadType3 extends Payload{
         result[0] = (byte) (value >> 8);
         result[1] = (byte) (value);
         return result;
+    }
+
+    private byte[] generateHMAC(byte[] data, String password) throws Exception {
+        // Derive a key from the password
+        byte[] key = password.getBytes(); // Use a proper key derivation function in production!
+
+        // Initialize HMAC with SHA-256
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "HmacSHA256");
+        mac.init(secretKeySpec);
+
+        // Compute the HMAC
+        return mac.doFinal(data);
     }
 }

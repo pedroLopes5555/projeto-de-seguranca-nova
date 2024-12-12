@@ -7,6 +7,8 @@ import Repository.IServerRepository;
 import Repository.ServerRepository;
 
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -90,14 +92,15 @@ public class PayloadType4 extends Payload{
         System.arraycopy(encryptedData, 0, hash,0, encryptedData.length);
         System.arraycopy(digitalSign, 0, hash,encryptedData.length, digitalSign.length);
 
-        byte[] result = new byte[encryptedData.length + digitalSign.length + hash.length + 4];
+        String password = user.getPassword();
+        byte[] hmac = generateHMAC(hash, password);
+
+        byte[] result = new byte[encryptedData.length + digitalSign.length + hmac.length + 4];
         System.arraycopy(encSize, 0, result,0, 2);
         System.arraycopy(signSize, 0, result,2, 2);
         System.arraycopy(encryptedData, 0, result,4, encryptedData.length);
         System.arraycopy(digitalSign, 0, result,encryptedData.length+4, digitalSign.length);
-        System.arraycopy(hash, 0, result,digitalSign.length+encryptedData.length+4, hash.length);
-
-        //MISSING HASH
+        System.arraycopy(hmac, 0, result,digitalSign.length+encryptedData.length+4, hmac.length);
 
         return result;
     }
@@ -148,5 +151,18 @@ public class PayloadType4 extends Payload{
         result[0] = (byte) (value >> 8);
         result[1] = (byte) (value);
         return result;
+    }
+
+    private byte[] generateHMAC(byte[] data, String password) throws Exception {
+        // Derive a key from the password
+        byte[] key = password.getBytes(); // Use a proper key derivation function in production!
+
+        // Initialize HMAC with SHA-256
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "HmacSHA256");
+        mac.init(secretKeySpec);
+
+        // Compute the HMAC
+        return mac.doFinal(data);
     }
 }

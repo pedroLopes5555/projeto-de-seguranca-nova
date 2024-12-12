@@ -145,7 +145,8 @@ public class StreamServer {
             throw new Exception("movie dosent exist on how database");
         }
 
-        DataInputStream g = new DataInputStream(new FileInputStream("/home/pedro/NOVA/seguranca/projeto-de-seguranca-nova/pt_2/cars.dat"));
+        DataInputStream g = new DataInputStream(new FileInputStream("C:/Users/valen/Desktop/projeto-de-seguranca-nova/pt_2/cars.dat"));
+        //DataInputStream g = new DataInputStream(new FileInputStream("/home/pedro/NOVA/seguranca/projeto-de-seguranca-nova/pt_2/cars.dat"));
         byte[] buff = new byte[65000];
 
         DatagramSocket socket = new DatagramSocket();

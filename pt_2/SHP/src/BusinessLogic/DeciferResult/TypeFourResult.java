@@ -72,15 +72,6 @@ public class TypeFourResult extends DeciferResult{
 
     private void decifer(byte[] ciferedContet) throws Exception{
 
-        /*
-        var privKey = _repository.getPrivateKey();
-        Cipher cipher= Cipher.getInstance("ECIES", "BC");
-        cipher.init(Cipher.DECRYPT_MODE, privKey);
-        byte[] plaintext = cipher.doFinal(ciferedContet);
-
-        System.out.println("desencriptou: " + new String(plaintext));
-        */
-
         PrivateKey privateKey = _repository.getPrivateKey();
         PublicKey publicServerKey = _repository.getServerPublicKey();
 
