@@ -10,20 +10,21 @@ import java.util.Base64;
 
 public class ECDSAKeyLoader {
     public static void main(String[] args) throws Exception {
+
         // Add the BouncyCastle provider
         Security.addProvider(new BouncyCastleProvider());
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
         // Values provided
         String curve = "secp256k1";
-        String privateKeyEncodedString = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQghJONrUQlOeT2PtQVs5aGEbCZzgrdN35BGE7SHeCSN/qgBwYFK4EEAAqhRANCAAR8liKz5l+BKi8VB5PvxfQ8p0R4yjCZ8PKhGJqol6HIFMEVNpnZTyN06pz0MYjjLe8naxsCn7mB+vLu8/HUzWbt";
-        String publicKeyEncodedString = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEfJYis+ZfgSovFQeT78X0PKdEeMowmfDyoRiaqJehyBTBFTaZ2U8jdOqc9DGI4y3vJ2sbAp+5gfry7vPx1M1m7Q==";
+        String privateKeyEncodedString = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgWukXndmurjN4ZpVIvab+HlmX7ItXjalxZfWWpbw3ZQSgBwYFK4EEAAqhRANCAASaAP7a7u4n4yOTeH161Qb1jQW0vZ7LDGSjirqLjMCOa7509k+TMSpRUDnHcUATmQpXXbRjq1qQQn/TbS+Mu6sh";
+        String publicKeyEncodedString = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEmgD+2u7uJ+Mjk3h9etUG9Y0FtL2eywxko4q6i4zAjmu+dPZPkzEqUVA5x3FAE5kKV120Y6takEJ/020vjLurIQ==";
 
 
 
 
         /*Create privateKey to encode a message*/
-        byte[] message = "Coco Merda Fodase".getBytes();
+        byte[] message = "teste".getBytes();
 
         /*Generate Priv Key*/
         //decode the base 64 privKey
@@ -52,7 +53,6 @@ public class ECDSAKeyLoader {
         signature.initVerify(pubKey);
         signature.update(message);
 
-        
         if (signature.verify(sigBytes))
         {
             System.out.println("Assinatura ECDSA validada - reconhecida");

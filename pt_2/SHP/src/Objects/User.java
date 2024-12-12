@@ -1,11 +1,13 @@
 package Objects;
 
+import java.security.PublicKey;
+
 public class User {
 
     private String userId;
     private String password;
     private byte[] randomSalt;
-    private  byte[] ECCPublicKey;
+    private PublicKey pubKey;
 
 
     public User(String userId, String password) {
@@ -13,11 +15,11 @@ public class User {
         this.password = password;
     }
 
-    public User(String userId, String password, byte[] randomSalt, byte[] ECCPublicKey) {
+    public User(String userId, String password, byte[] randomSalt, PublicKey pubKey) {
         this.userId = userId;
         this.password = password;
         this.randomSalt = randomSalt;
-        this.ECCPublicKey = ECCPublicKey;
+        this.pubKey = pubKey;
     }
 
 
@@ -25,8 +27,8 @@ public class User {
         return randomSalt;
     }
 
-    public byte[] getECCPublicKey() {
-        return ECCPublicKey;
+    public PublicKey getECCPublicKey() {
+        return pubKey;
     }
 
     public User(String userId) {

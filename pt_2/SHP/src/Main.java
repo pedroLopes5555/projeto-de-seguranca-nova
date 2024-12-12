@@ -67,8 +67,9 @@ public class Main {
             byteArrayLength = inputStream.readInt();
             receivedEncryptedData = new byte[byteArrayLength];
             inputStream.readFully(receivedEncryptedData);
+            var type3Result = _decifer.getPayloadType3(receivedEncryptedData, userId );
             System.out.println("Recived encripted message message type 3" + receivedEncryptedData.toString());
-            System.out.println("decyptedmessage message type 3" + _decifer.getPayloadType3(receivedEncryptedData, userId ).toString());
+            System.out.println("decyptedmessage message type 3" + type3Result.toString());
 
 
             Thread.sleep(1000);

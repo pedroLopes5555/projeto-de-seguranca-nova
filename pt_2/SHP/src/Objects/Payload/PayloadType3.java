@@ -59,19 +59,22 @@ public class PayloadType3 extends Payload{
 
         //----------------------------------
         byte[] PBEEncryptedData = getPasswordBasedEncryptionPart(dataToEncrypt, user);
-        byte[] digitalSign = getSigBytes(PBEEncryptedData);
+        byte[] digitalSign = getSigBytes(dataToEncrypt);
 
-        return digitalSign;
+
+        return PBEEncryptedData;
     }
 
 
 
-    private byte[] getSigBytes(byte[] contentToSigh) throws  Exception{
-        var privateKey = _repository.getPrivateKey();
+    private byte[] getSigBytes(byte[] message) throws  Exception{
+        PrivateKey privKey = _repository.getPrivateKey();
         Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
-        signature.initSign(privateKey, new SecureRandom());
-        signature.update(contentToSigh);
-        return signature.sign();
+        signature.initSign(privKey, new SecureRandom());
+        signature.update(message);
+        byte[] sigBytes = signature.sign();
+
+        return sigBytes;
     }
 
 
@@ -79,10 +82,9 @@ public class PayloadType3 extends Payload{
         byte[] salt = generateSalt();
         int iterationCount = 2048;
 
-
-
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hashedBytes = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
+        System.out.println(hashedBytes.toString());
 
 
         //nao sei pq, e acho assustador, se eu colocar a hash numa variavel antes funciona,

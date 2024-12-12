@@ -11,13 +11,17 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPublicKeySpec;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class ServerRepository implements IServerRepository {
 
-    String PATH_TO_USER_DATABASE = "src/cfg/Server/userdatabase.txt";
-    List<User> Users;
+    private String PATH_TO_USER_DATABASE = "src/cfg/Server/userdatabase.txt";
+    private List<User> Users;
+
 
 
     public ServerRepository() throws Exception {
@@ -35,43 +39,14 @@ public class ServerRepository implements IServerRepository {
     }
 
 
+    public PublicKey createPublicKey(String bas64PubKey) throws Exception{
 
-    public PublicKey getUserPublicKey(String userId) throws Exception{
-        String pubKeyXHex = "676e313a4c371cd09d2249ec006066b869b794f031f319603e34b90ccd00feec";
-        String pubKeyYHex = "acddeda86501ce1fa8c0fc9d339d18b2231fc96bae7b73afee8a95ace4fdc91a";
-        String curve = "secp256k1";
+        /*now we will generate the pubKey*/
 
-
-        //generate the Eliptic curve
-        ECNamedCurveParameterSpec spec = org.bouncycastle.jce.ECNamedCurveTable.getParameterSpec(curve);
-        ECParameterSpec params = new ECNamedCurveSpec(
-                spec.getName(),
-                spec.getCurve(),
-                spec.getG(),
-                spec.getN(),
-                spec.getH(),
-                spec.getSeed());
-
-        //generate the key factory
+        byte[] decodePubFromBase64 = Base64.getDecoder().decode(bas64PubKey);
         KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
-
-
-        // Reconstruct public key, by the coordinate of the Eliptic curve
-        org.bouncycastle.math.ec.ECPoint bcPoint = spec.getCurve().createPoint(
-                new java.math.BigInteger(pubKeyXHex, 16),
-                new java.math.BigInteger(pubKeyYHex, 16));
-
-
-        //AI
-        // Convert BouncyCastle ECPoint to java.security.spec.ECPoint
-        java.security.spec.ECPoint javaPoint = new java.security.spec.ECPoint(
-                bcPoint.getAffineXCoord().toBigInteger(),
-                bcPoint.getAffineYCoord().toBigInteger()
-        );
-
-        ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(javaPoint, params);
-        return keyFactory.generatePublic(publicKeySpec);
-
+        EncodedKeySpec KeySpec = new X509EncodedKeySpec(decodePubFromBase64);
+        return keyFactory.generatePublic(KeySpec);
     }
 
 
@@ -87,7 +62,7 @@ public class ServerRepository implements IServerRepository {
             if(st.charAt(0) != '#'){
                 //System.out.println("linha: " + st);
                 String[] elements = st.split(":");
-                result.add(new User(elements[0], elements[1]));
+                result.add(new User(elements[0], elements[1], elements[2].getBytes(), createPublicKey(elements[3])));
 
                 for(String i: elements){
                     System.out.println(i);
