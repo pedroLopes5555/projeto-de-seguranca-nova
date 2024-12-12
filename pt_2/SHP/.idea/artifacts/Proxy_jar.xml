@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="Proxy:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Proxy_jar</output-path>
+    <root id="root">
+      <element id="archive" name="Part2.jar">
+        <element id="module-output" name="Part2" />
+      </element>
+      <element id="library" level="project" name="DSTP" />
+      <element id="file-copy" path="$PROJECT_DIR$/../bcprov-jdk18on-1.78.1.jar" />
+    </root>
+  </artifact>
+</component>
