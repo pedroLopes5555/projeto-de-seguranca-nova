@@ -82,6 +82,40 @@ public class Utils
         return (highByte << 8) | lowByte;
     }
 
+    public static byte[] toByteArray(String var0) {
+        byte[] var1 = new byte[var0.length()];
+        char[] var2 = var0.toCharArray();
+  
+        for(int var3 = 0; var3 != var2.length; ++var3) {
+           var1[var3] = (byte)var2[var3];
+        }
+  
+        return var1;
+     }
+
+        // Method to convert an integer to a 16-bit byte array
+        public static byte[] intToByteArray(int value) {
+        // Create a 2-byte array for 16 bits
+        byte[] byteArray = new byte[2];
+
+        // Extract high byte and low byte
+        byteArray[0] = (byte) ((value >> 8) & 0xFF); // High byte
+        byteArray[1] = (byte) (value & 0xFF);        // Low byte
+
+        return byteArray;
+    }
+
+    public static byte[] combineArrays(byte[] array1, byte[] array2) {
+        byte[] combined = new byte[array1.length + array2.length];
+        System.arraycopy(array1, 0, combined, 0, array1.length);
+        System.arraycopy(array2, 0, combined, array1.length, array2.length);
+        return combined;
+    }
+
+
+        
+
+
 
 }
 

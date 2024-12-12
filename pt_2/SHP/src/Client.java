@@ -3,17 +3,21 @@ import BusinessLogic.ISHPCifer;
 import BusinessLogic.ISHPDecifer;
 import BusinessLogic.SHPCifer;
 import BusinessLogic.SHPDecifer;
+import BusinessLogic.UdpConnection.UDPConnecrtion;
 import DSTP.*;
 import Objects.MessageType;
 import Objects.SHPSocket.SHPSocket;
 import Objects.SHPSocket.SHPSocketUtils;
 import Objects.User;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 
 import java.io.*;
 import java.net.*;
 import java.security.Provider;
 import java.security.Security;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Client {
@@ -24,7 +28,9 @@ public class Client {
 
     public static void main(String[] args) throws Exception {
 
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Map<String, String> map = new HashMap<>();
+
+        Security.addProvider(new BouncyCastleProvider());
         User user = new User("paulinho@gmail.com", "passwordsecretadopaulinho");
 
         _cifer = new SHPCifer();
@@ -94,7 +100,7 @@ public class Client {
             receivedEncryptedData = new byte[byteArrayLength1];
             inputStream.readFully(receivedEncryptedData);
             receivedMessage = _decifer.getPayloadType4(receivedEncryptedData);
-            var map = receivedMessage.getCryptoConfigMap();
+            map = receivedMessage.getCryptoConfigMap();
 
 
             Thread.sleep(1000);
@@ -124,5 +130,53 @@ public class Client {
                 e.printStackTrace();
             }
         }
+
+
+        int size;
+        int count = 0;
+        long time;
+
+        DataInputStream g = new DataInputStream(new FileInputStream("/home/pedro/NOVA/seguranca/projeto-de-seguranca-nova/pt_2/cars.dat"));
+        byte[] buff = new byte[65000];
+
+        DatagramSocket s1 = new DatagramSocket();
+        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 9000);
+
+        DatagramPacket p = new DatagramPacket(buff, buff.length, addr);
+        long t0 = System.nanoTime(); // reference time
+        long q0 = 0;
+
+        while (g.available() > 0) {
+            // Read packet data from the input stream
+            size = g.readShort();
+            time = g.readLong();
+
+            if (count == 0) q0 = time; // reference time in the stream
+            count += 1;
+
+            g.readFully(buff, 0, size);
+
+            // Encrypt the datagram data before sending
+            if(map == null){
+                throw  new Exception("no cfg recived");
+            }
+
+            byte[] encryptedData = GetEncryptedDatagram.getEncryptedDatagram(buff, count, map);
+            p.setData(encryptedData, 0, encryptedData.length);
+            p.setSocketAddress(addr);
+
+            // Calculate delay to match streaming time
+            long t = System.nanoTime();
+            Thread.sleep(Math.max(0, ((time - q0) - (t - t0)) / 1000000));
+
+            // Send the encrypted packet
+            s1.send(p);
+        }
+
+        System.out.println("\nEND ! packets with frames sent: " + count);
+
+
+
+
     }
 }

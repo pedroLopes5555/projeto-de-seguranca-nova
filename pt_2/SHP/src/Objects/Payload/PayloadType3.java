@@ -46,7 +46,7 @@ public class PayloadType3 extends Payload{
         String userId = user.getUserId();
         String  nonce3plus1 = new String(addOne(nonce3));
         String nonce4 = new String(generateSalt()) ;
-        String udpPort = "3000";
+        String udpPort = "9000";
         String payload =
                 "request:" + request +
                 ";userid:" + userId +

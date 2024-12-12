@@ -5,9 +5,10 @@
 * that can play in real time the transmitted movies
 */
 
-import DSTP.dstpsend.GetEncryptedDatagram;
 import java.io.*;
 import java.net.*;
+
+import DSTP.dstpdecript.GetEncryptedDatagram;
 
 class hjStreamServer {
 

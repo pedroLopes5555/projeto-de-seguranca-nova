@@ -1,4 +1,4 @@
-package DSTP.dstpsend;
+package DSTP.dstpdecript;
 
 import java.io.*;
 import java.net.Socket;

@@ -24,6 +24,9 @@ public class TypeThreeResult extends  DeciferResult{
     private int udpPort;
 
 
+
+
+
     public IServerRepository get_repository() {
         return _repository;
     }
@@ -49,6 +52,7 @@ public class TypeThreeResult extends  DeciferResult{
         return nonce4;
     }
 
+    @Override
     public int getUdpPort() {
         return udpPort;
     }

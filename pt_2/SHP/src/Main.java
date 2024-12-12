@@ -3,6 +3,9 @@ import BusinessLogic.ISHPCifer;
 import BusinessLogic.ISHPDecifer;
 import BusinessLogic.SHPCifer;
 import BusinessLogic.SHPDecifer;
+import BusinessLogic.UdpConnection.UDPConnecrtion;
+import DSTP.DecriptDatagram;
+import DSTP.EncriptedDatagramResoult;
 import Objects.MessageType;
 import Objects.SHPSocket.SHPSocket;
 import Objects.SHPSocket.SHPSocketUtils;
@@ -12,15 +15,19 @@ import java.net.*;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Main {
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        UDPConnecrtion udpConnection = new UDPConnecrtion();
 
         _cifer = new SHPCifer();
         _decifer = new SHPDecifer();
@@ -79,6 +86,9 @@ public class Main {
             System.out.println(type3Result.toString());
 
 
+            udpConnection.setPort(type3Result.getUdpPort());
+
+
 
 
             //return the Message type 4
@@ -111,5 +121,49 @@ public class Main {
                 e.printStackTrace();
             }
         }
+
+
+
+
+        SocketAddress inSocketAddress = parseSocketAddress("127.0.0.1:" + Integer.toString(udpConnection.getPort()));
+        Set<SocketAddress> outSocketAddressSet = Arrays.stream("127.0.0.1:8888".split(","))
+                .map(s -> parseSocketAddress(s))
+                .collect(Collectors.toSet());
+
+
+        System.out.println("127.0.0.1:" + Integer.toString(udpConnection.getPort()));
+
+        DatagramSocket inSocket = new DatagramSocket(inSocketAddress);
+        DatagramSocket outSocket = new DatagramSocket();
+        byte[] buffer = new byte[4 * 1024]; // Adjust buffer size as necess
+
+
+
+        while (true) {
+            DatagramPacket inPacket = new DatagramPacket(buffer, buffer.length);
+            inSocket.receive(inPacket); // Receive incoming packet
+
+            // Decrypt the received data
+            byte[] receivedData = Arrays.copyOfRange(inPacket.getData(), 0, inPacket.getLength());
+            EncriptedDatagramResoult decryptedResult = DecriptDatagram.GetDecriptedDatagram(receivedData, "src/cfg/Server/ciphersuite.conf");
+
+            // Extract the decrypted payload
+            byte[] decryptedData = decryptedResult.getPtextBytes();
+
+            // Relay the decrypted packet to each destination
+            for (SocketAddress outSocketAddress : outSocketAddressSet) {
+                DatagramPacket outPacket = new DatagramPacket(decryptedData, decryptedData.length, outSocketAddress);
+                outSocket.send(outPacket);
+            }
+        }
+
+    }
+
+
+    private static InetSocketAddress parseSocketAddress(String socketAddress) {
+        String[] split = socketAddress.split(":");
+        String host = split[0];
+        int port = Integer.parseInt(split[1]);
+        return new InetSocketAddress(host, port);
     }
 }

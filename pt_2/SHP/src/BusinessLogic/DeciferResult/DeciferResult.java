@@ -27,4 +27,9 @@ public class DeciferResult {
     public Map<String, String> getCryptoConfigMap(){
         return null;
     }
+
+
+    public int getUdpPort(){
+        return 0;
+    }
 }
