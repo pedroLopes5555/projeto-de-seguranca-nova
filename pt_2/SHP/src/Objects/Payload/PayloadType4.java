@@ -8,7 +8,10 @@ import Repository.ServerRepository;
 
 import javax.crypto.Cipher;
 import java.math.BigInteger;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Signature;
 import java.util.Arrays;
 
 public class PayloadType4 extends Payload{
@@ -53,6 +56,26 @@ public class PayloadType4 extends Payload{
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
         return cipher.doFinal(content);
     }
+
+
+//
+//
+//
+//    private byte[] getSigBytes(byte[] message) throws  Exception{
+//        PublicKey pubKey = _repository.getUserById(this.user.getUserId()).getECCPublicKey();
+//
+//        Signature signature = Signature.getInstance("SHA256withECDSA", "BC");
+//        signature.initSign(privKey, new SecureRandom());
+//        signature.update(message);
+//        byte[] sigBytes = signature.sign();
+//
+//        return sigBytes;
+//    }
+
+
+
+
+
 
 
 
