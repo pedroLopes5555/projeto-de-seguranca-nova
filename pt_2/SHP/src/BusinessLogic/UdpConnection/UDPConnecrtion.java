@@ -4,7 +4,16 @@ public class UDPConnecrtion {
     int port;
     String Endpoint;
     String MediaPlayerIp;
+    String requestedMovie;
 
+
+    public String getRequestedMovie() {
+        return requestedMovie;
+    }
+
+    public void setRequestedMovie(String requestedMovie) {
+        this.requestedMovie = requestedMovie;
+    }
 
     public UDPConnecrtion() {
     }

@@ -34,19 +34,18 @@ public class PayloadType3 extends Payload{
 
     IClientRepository _repository;
 
-    public PayloadType3(User user, byte[] nonce3) throws Exception {
+    public PayloadType3(User user, byte[] nonce3, int udpPort, String request) throws Exception {
         _repository = new ClientRepository();
-        this.payload = createPayload(user, nonce3);
+        this.payload = createPayload(user, nonce3, udpPort, request);
     }
 
 
-    private byte[] createPayload(User user, byte[] nonce3) throws Exception {
+    private byte[] createPayload(User user, byte[] nonce3, int udpPort, String request) throws Exception {
         //Payload: ------------------------
-        String request = "streaming";
         String userId = user.getUserId();
         String  nonce3plus1 = new String(addOne(nonce3));
         String nonce4 = new String(generateSalt()) ;
-        String udpPort = "9000";
+        String udpPortstring = Integer.toString(udpPort);
         String payload =
                 "request:" + request +
                 ";userid:" + userId +

@@ -6,6 +6,7 @@ import BusinessLogic.SHPDecifer;
 import BusinessLogic.UdpConnection.UDPConnecrtion;
 import DSTP.DecriptDatagram;
 import DSTP.EncriptedDatagramResoult;
+import DSTP.GetEncryptedDatagram;
 import Objects.MessageType;
 import Objects.SHPSocket.SHPSocket;
 import Objects.SHPSocket.SHPSocketUtils;
@@ -13,17 +14,18 @@ import Objects.SHPSocket.SHPSocketUtils;
 import java.io.*;
 import java.net.*;
 import java.security.*;
-import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Main {
+public class StreamServer {
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
 
 
     public static void main(String[] args) throws Exception {
+
 
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
@@ -39,14 +41,19 @@ public class Main {
         DataInputStream inputStream = null;
         DataOutputStream outputStream = null;
 
+        String clientIp = "";
         try {
             // Create a ServerSocket on port 5000
             serverSocket = new ServerSocket(5000);
-            System.out.println("Server started, waiting for a client to connect...");
+            System.out.println("Server started, waiting for a client to connect... -> port: " + 5000);
             // Accept incoming client connection
             clientSocket = serverSocket.accept();
             System.out.println("Client connected.");
             System.out.println(" ----------------- ");
+
+            clientIp = clientSocket.getInetAddress().getHostAddress();
+            System.out.println("Client connected from IP: " + clientIp);
+
 
 
             // Get the input and output streams from the client socket
@@ -86,6 +93,7 @@ public class Main {
             System.out.println(type3Result.toString());
 
 
+            udpConnection.setRequestedMovie(type3Result.getRequest());
             udpConnection.setPort(type3Result.getUdpPort());
 
 
@@ -125,37 +133,56 @@ public class Main {
 
 
 
-        SocketAddress inSocketAddress = parseSocketAddress("127.0.0.1:" + Integer.toString(udpConnection.getPort()));
-        Set<SocketAddress> outSocketAddressSet = Arrays.stream("127.0.0.1:8888".split(","))
-                .map(s -> parseSocketAddress(s))
-                .collect(Collectors.toSet());
+
+        int size;
+        int count = 0;
+        long time;
 
 
-        System.out.println("127.0.0.1:" + Integer.toString(udpConnection.getPort()));
+        System.out.println(udpConnection.getRequestedMovie());
 
-        DatagramSocket inSocket = new DatagramSocket(inSocketAddress);
-        DatagramSocket outSocket = new DatagramSocket();
-        byte[] buffer = new byte[4 * 1024]; // Adjust buffer size as necess
-
-
-
-        while (true) {
-            DatagramPacket inPacket = new DatagramPacket(buffer, buffer.length);
-            inSocket.receive(inPacket); // Receive incoming packet
-
-            // Decrypt the received data
-            byte[] receivedData = Arrays.copyOfRange(inPacket.getData(), 0, inPacket.getLength());
-            EncriptedDatagramResoult decryptedResult = DecriptDatagram.GetDecriptedDatagram(receivedData, "src/cfg/Server/ciphersuite.conf");
-
-            // Extract the decrypted payload
-            byte[] decryptedData = decryptedResult.getPtextBytes();
-
-            // Relay the decrypted packet to each destination
-            for (SocketAddress outSocketAddress : outSocketAddressSet) {
-                DatagramPacket outPacket = new DatagramPacket(decryptedData, decryptedData.length, outSocketAddress);
-                outSocket.send(outPacket);
-            }
+        if(!Objects.equals(udpConnection.getRequestedMovie(), "cars")){
+            throw new Exception("movie dosent exist on how database");
         }
+
+        DataInputStream g = new DataInputStream(new FileInputStream("/home/pedro/NOVA/seguranca/projeto-de-seguranca-nova/pt_2/cars.dat"));
+        byte[] buff = new byte[65000];
+
+        DatagramSocket socket = new DatagramSocket();
+        InetSocketAddress addr = new InetSocketAddress(clientIp, udpConnection.getPort());
+
+        DatagramPacket p = new DatagramPacket(buff, buff.length, addr);
+
+
+        long t0 = System.nanoTime(); // reference time
+        long q0 = 0;
+
+        while (g.available() > 0) {
+            // Read packet data from the input stream
+            size = g.readShort();
+            time = g.readLong();
+
+            if (count == 0) q0 = time; // reference time in the stream
+            count += 1;
+
+            g.readFully(buff, 0, size);
+
+            // Encrypt the datagram data before sending
+            byte[] encryptedData = GetEncryptedDatagram.getEncryptedDatagram(buff, count, "src/cfg/Server/ciphersuite.conf" );
+            p.setData(encryptedData, 0, encryptedData.length);
+            p.setSocketAddress(addr);
+
+            // Calculate delay to match streaming time
+            long t = System.nanoTime();
+            Thread.sleep(Math.max(0, ((time - q0) - (t - t0)) / 1000000));
+
+            // Send the encrypted packet
+            socket.send(p);
+        }
+
+        System.out.println("\nEND ! packets with frames sent: " + count);
+
+
 
     }
 

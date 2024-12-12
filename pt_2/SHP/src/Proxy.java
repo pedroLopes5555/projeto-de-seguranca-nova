@@ -3,7 +3,6 @@ import BusinessLogic.ISHPCifer;
 import BusinessLogic.ISHPDecifer;
 import BusinessLogic.SHPCifer;
 import BusinessLogic.SHPDecifer;
-import BusinessLogic.UdpConnection.UDPConnecrtion;
 import DSTP.*;
 import Objects.MessageType;
 import Objects.SHPSocket.SHPSocket;
@@ -14,13 +13,14 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.*;
 import java.net.*;
-import java.security.Provider;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class Client {
+public class Proxy {
 
     static ISHPCifer _cifer;
     static ISHPDecifer _decifer;
@@ -28,10 +28,30 @@ public class Client {
 
     public static void main(String[] args) throws Exception {
 
+        // Validate the number of arguments
+        if (args.length != 7) {
+            System.out.println("Usage: java Proxy <username> <password> <server> <tcp_port> <movie> <udp_port> <player_port>");
+            return;
+        }
+
+
+        // Parse command-line arguments
+        String username = args[0];
+        String password = args[1];
+        String server = args[2];
+        int tcpPort = Integer.parseInt(args[3]);
+        String movie = args[4];
+        int udpPort = Integer.parseInt(args[5]);
+        int playerPort = Integer.parseInt(args[6]);
+
+
+
+
         Map<String, String> map = new HashMap<>();
 
         Security.addProvider(new BouncyCastleProvider());
-        User user = new User("paulinho@gmail.com", "passwordsecretadopaulinho");
+        User user = new User(username, password);
+        //passwordsecretadopaulinho
 
         _cifer = new SHPCifer();
         _decifer = new SHPDecifer();
@@ -44,7 +64,7 @@ public class Client {
 
         try {
             // Connect to the server on localhost and port 5000
-            socket = new Socket("localhost", 5000);
+            socket = new Socket(server, tcpPort);
             System.out.println("Connected to server.");
             System.out.println(" ----------------- ");
 
@@ -86,7 +106,8 @@ public class Client {
             // Send the byte[] to the server
             byte[] test = { 0x01, 0x02, 0x03};
 
-            shpSocket = new SHPSocket(MessageType.TYPE5, _cifer.createPayloadType3(user, receivedMessage.getNonce3()));
+            //olha, vou receber nesta porta
+            shpSocket = new SHPSocket(MessageType.TYPE5, _cifer.createPayloadType3(user, receivedMessage.getNonce3(), udpPort, movie));
             outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
             outputStream.write(shpSocket.getSocketContent());  // Send the byte array
             System.out.println("Sent this message type 3 to server: " + shpSocket.getSocketContent());
@@ -132,51 +153,46 @@ public class Client {
         }
 
 
-        int size;
-        int count = 0;
-        long time;
+        String remote = server + ":" + udpPort; // receive mediastream from this remote endpoint
+        String destinations = "localhost" + ":" + playerPort; // resend mediastream to this destination endpoint
 
-        DataInputStream g = new DataInputStream(new FileInputStream("/home/pedro/NOVA/seguranca/projeto-de-seguranca-nova/pt_2/cars.dat"));
-        byte[] buff = new byte[65000];
+        System.out.println("a receber de: " + remote);
+        System.out.println("a enviar para :" + destinations);
 
-        DatagramSocket s1 = new DatagramSocket();
-        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 9000);
+        SocketAddress inSocketAddress = parseSocketAddress(remote);
+        Set<SocketAddress> outSocketAddressSet = Arrays.stream(destinations.split(","))
+                .map(s -> parseSocketAddress(s))
+                .collect(Collectors.toSet());
 
-        DatagramPacket p = new DatagramPacket(buff, buff.length, addr);
-        long t0 = System.nanoTime(); // reference time
-        long q0 = 0;
+        DatagramSocket inSocket = new DatagramSocket(inSocketAddress);
+        DatagramSocket outSocket = new DatagramSocket();
+        byte[] buffer = new byte[4 * 1024]; // Adjust buffer size as necessary
 
-        while (g.available() > 0) {
-            // Read packet data from the input stream
-            size = g.readShort();
-            time = g.readLong();
+        while (true) {
+            DatagramPacket inPacket = new DatagramPacket(buffer, buffer.length);
+            inSocket.receive(inPacket); // Receive incoming packet
 
-            if (count == 0) q0 = time; // reference time in the stream
-            count += 1;
+            // Decrypt the received data
+            byte[] receivedData = Arrays.copyOfRange(inPacket.getData(), 0, inPacket.getLength());
+            EncriptedDatagramResoult decryptedResult = DecriptDatagram.GetDecriptedDatagramWhitMap(receivedData, map);
 
-            g.readFully(buff, 0, size);
+            // Extract the decrypted payload
+            byte[] decryptedData = decryptedResult.getPtextBytes();
 
-            // Encrypt the datagram data before sending
-            if(map == null){
-                throw  new Exception("no cfg recived");
+            // Relay the decrypted packet to each destination
+            for (SocketAddress outSocketAddress : outSocketAddressSet) {
+                DatagramPacket outPacket = new DatagramPacket(decryptedData, decryptedData.length, outSocketAddress);
+                outSocket.send(outPacket);
             }
 
-            byte[] encryptedData = GetEncryptedDatagram.getEncryptedDatagram(buff, count, map);
-            p.setData(encryptedData, 0, encryptedData.length);
-            p.setSocketAddress(addr);
-
-            // Calculate delay to match streaming time
-            long t = System.nanoTime();
-            Thread.sleep(Math.max(0, ((time - q0) - (t - t0)) / 1000000));
-
-            // Send the encrypted packet
-            s1.send(p);
         }
 
-        System.out.println("\nEND ! packets with frames sent: " + count);
+    }
 
-
-
-
+    private static InetSocketAddress parseSocketAddress(String socketAddress) {
+        String[] split = socketAddress.split(":");
+        String host = split[0];
+        int port = Integer.parseInt(split[1]);
+        return new InetSocketAddress(host, port);
     }
 }

@@ -28,14 +28,14 @@ public class SHPCifer implements ISHPCifer {
     }
 
 
-    public Payload createPayloadType3(User user, byte[] nonce3) throws Exception{
+    public Payload createPayloadType3(User user, byte[] nonce3, int udpPort, String request) throws Exception{
 
 
         if(user == null || user.isEmpty()){
             throw new Exception("Invalid User");
         }
 
-        return new PayloadType3(user, nonce3);
+        return new PayloadType3(user, nonce3, udpPort, request);
     }
 
 

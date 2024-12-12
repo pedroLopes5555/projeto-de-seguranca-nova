@@ -29,6 +29,10 @@ public class DeciferResult {
     }
 
 
+    public String getRequest() {
+        return "cars.dat";
+    }
+
     public int getUdpPort(){
         return 0;
     }

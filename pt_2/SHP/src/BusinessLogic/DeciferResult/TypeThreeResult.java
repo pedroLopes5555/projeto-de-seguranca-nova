@@ -35,6 +35,7 @@ public class TypeThreeResult extends  DeciferResult{
         return result;
     }
 
+    @Override
     public String getRequest() {
         return request;
     }
