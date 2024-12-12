@@ -76,9 +76,9 @@ public class Main {
 
 
             //return the Message type 4
-            byte[] type4 = ("type 4 message").getBytes();
-            outputStream.writeInt(type4.length);  // Send the length of the byte array first
-            outputStream.write(type4);  // Send the byte array
+            shpSocket = new SHPSocket(MessageType.TYPE4, _cifer.createPayloadType4(userId, "streaming",type3Result.getNonce4(), "testeCryptoconmfig"));
+            outputStream.writeInt(shpSocket.getSocketContent().length);  // Send the length of the byte array first
+            outputStream.write(shpSocket.getSocketContent());  // Send the byte array
             System.out.println("Returned Message type 4");
             // -------------------------------------------------------------------------------------------------------
 

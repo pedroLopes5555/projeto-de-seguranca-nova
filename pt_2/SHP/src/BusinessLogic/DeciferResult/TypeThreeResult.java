@@ -10,6 +10,7 @@ import javax.crypto.spec.PBEParameterSpec;
 import java.security.Key;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.util.Arrays;
 
 public class TypeThreeResult extends  DeciferResult{
 
@@ -22,21 +23,50 @@ public class TypeThreeResult extends  DeciferResult{
     private byte[] nonce4;
     private int udpPort;
 
+
+    public IServerRepository get_repository() {
+        return _repository;
+    }
+
+    public byte[] getResult() {
+        return result;
+    }
+
+    public String getRequest() {
+        return request;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public byte[] getNonce3plus1() {
+        return nonce3plus1;
+    }
+
+    @Override
+    public byte[] getNonce4() {
+        return nonce4;
+    }
+
+    public int getUdpPort() {
+        return udpPort;
+    }
+
     public TypeThreeResult(byte[] encryptedPayload, String userId) throws  Exception{
         _repository = new ServerRepository();
         this.result = deciferPayload(encryptedPayload, userId);
     }
 
 
-
     @Override
     public String toString() {
-        // ANSI escape code for red text
-        String red = "\u001B[31m";  // Red color
-        String reset = "\u001B[0m"; // Reset to default color
-
-        return "TypeOneResult{" +
-                "result='" + red +  new String(result) +reset +  '\'' +
+        return "TypeThreeResult{" +
+                ", request='" + request + '\'' +
+                ", userId='" + userId + '\'' +
+                ", nonce3plus1=" + Arrays.toString(nonce3plus1) +
+                ", nonce4=" + Arrays.toString(nonce4) +
+                ", udpPort=" + udpPort +
                 '}';
     }
 

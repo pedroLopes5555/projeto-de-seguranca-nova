@@ -1,9 +1,6 @@
 package BusinessLogic;
 
-import BusinessLogic.DeciferResult.DeciferResult;
-import BusinessLogic.DeciferResult.TypeOneResult;
-import BusinessLogic.DeciferResult.TypeThreeResult;
-import BusinessLogic.DeciferResult.TypeTwoResult;
+import BusinessLogic.DeciferResult.*;
 import Objects.MessageType;
 
 import javax.swing.*;
@@ -48,10 +45,14 @@ public class SHPDecifer implements ISHPDecifer {
 
     }
 
+    @Override
+    public DeciferResult getPayloadType4(byte[] content, String userId) throws Exception {
+        if (content == null || content.length <= 3) {
+            throw new IllegalArgumentException("Content must be at least 4 bytes long");
+        }
 
-
-
-
+        return new TypeFourResult(getPayloadFromContent(content), userId);
+    }
 
 
     private byte[][] getNonces(byte[] nonces) {

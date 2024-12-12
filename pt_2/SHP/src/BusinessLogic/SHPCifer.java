@@ -1,10 +1,7 @@
 package BusinessLogic;
 
 import Objects.MessageType;
-import Objects.Payload.Payload;
-import Objects.Payload.PayloadType1;
-import Objects.Payload.PayloadType2;
-import Objects.Payload.PayloadType3;
+import Objects.Payload.*;
 import Objects.User;
 
 import java.util.Objects;
@@ -41,8 +38,9 @@ public class SHPCifer implements ISHPCifer {
     }
 
 
-    public Payload createPayloadType4(MessageType msgType) throws Exception {
-        return null;
+    public Payload createPayloadType4(String userId, String request, byte[] nonce4, String cryptoconfig) throws Exception {
+        
+        return new PayloadType4(userId, request, nonce4, cryptoconfig);
     }
 
 

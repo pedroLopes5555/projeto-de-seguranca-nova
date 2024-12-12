@@ -14,4 +14,7 @@ public class DeciferResult {
         return null;
     }
 
+    public byte[] getNonce4() {
+        return null;
+    }
 }
